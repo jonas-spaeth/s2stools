@@ -1,24 +1,37 @@
-from download import *
+import unittest
+import numpy as np
+from download.ecmwf import S2SDownloaderECMWF
 
 
-retreive()
+class TestDownload(unittest.TestCase):
+
+    # ECMWF
+
+    def test_filter_reftimes(self):
+        dl = S2SDownloaderECMWF()
+        dates = np.arange("2021-11-15", "2021-12-15", dtype="datetime64[D]")
+
+        valid_dates = dl.filter_reftimes(dates)
+
+        self.assertEqual(len(valid_dates), 9)
+        self.assertIn(np.datetime64("2021-11-15"), valid_dates)
+        self.assertNotIn(np.datetime64("2021-11-16"), valid_dates)
+
+    def test_retreive(self):
+        dl = S2SDownloaderECMWF()
+        dates = np.arange("2020-11-15", "2020-12-20", dtype="datetime64[D]")
+
+        target = "/Users/Jonas.Spaeth/Developer/stos/data/uv.nc"
+
+        dl.retreive(
+            param=["u", "v"],
+            reftime=dates[:3],
+            plevs=[1000, 850],
+            step = [0, 24],
+            target = target,
+            grid="2.5/2.5"
+        )
 
 
-##### workflow later
-
-# # download and store data
-# s2s.download.retreive(parameter=[u, v], level=[850, 500], fc_type=["rt", "hc"], area_nesw_box=[90, 180, 0, -180])
-
-# # open with inittime, hc_yr, leadtime dimensions, and optionally validtime variable
-# ds = s2s.dim.open_s2s(path, transform=True)
-
-# # desesonalize
-# clim = s2s.clim.deseasonalize(ds)
-# anom = s2s.clim.anom_from_clim(ds, clim)
-
-# # event composite
-# eventlist = stos.events.find_events(ds, algorithm)
-# ds_comp = stos.events.composite_from_eventlist(eventlist)
-
-# # plotting
-# s2s.plot.spaghetti(ds)
+if __name__ == '__main__':
+    unittest.main()
