@@ -16,7 +16,7 @@ class S2SDownloader:
         "model": "glob",
         # "origin": "ecmf",
         # "step": "0/24",
-        "stream": "enfo",
+        # "stream": "enfo",
         "time": "00:00:00",
         # "area": ["65", "-10", "50", "130"],
         "type": "cf",
@@ -31,10 +31,11 @@ class S2SDownloader:
         pass
 
     def retrieve(self, request):
-        pprint(request)
+        print("Target: ", request["target"])
 
-        server = ECMWFDataServer()
+        if False:
+            server = ECMWFDataServer()
 
-        server.retrieve(
-            request
-        )
+            server.retrieve(
+                request
+            )
