@@ -47,7 +47,8 @@ class S2SDownloaderECMWF(S2SDownloader):
         """
         self.request["param"] = utils.list_to_string(list(param))
         self.request["levelist"] = utils.list_to_string(list(plevs))
-        self.request["area"] = area
+        if area is not None:
+            self.request["area"] = area
 
         # all forecast steps
         if step == "all":

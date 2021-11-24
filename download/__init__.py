@@ -33,7 +33,7 @@ class S2SDownloader:
     def retrieve(self, request):
         print("Target: ", request["target"])
 
-        if False:
+        if True:
             server = ECMWFDataServer()
 
             server.retrieve(
