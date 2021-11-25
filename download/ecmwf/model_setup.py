@@ -1,5 +1,8 @@
+import pandas as pd
+
 import utils
 import numpy as np
+import pandas
 
 
 class Rt:
@@ -52,11 +55,14 @@ class Hc:
         Returns: np.ndarray(datetime64[D]) of all hindcast initialization dates
 
         """
-        end = date
-        td_1yr = np.timedelta64(365, "D") + np.timedelta64(6, "h")
-        start = end - 20 * td_1yr
-        hdates = np.arange(start, end, td_1yr, dtype="datetime64[h]").astype("datetime64[D]")
-        return hdates
+        end = pd.to_datetime(date)
+        if (end.month == 2) & (end.day == 29):
+            start = end - pd.DateOffset(years=20) - pd.DateOffset(days=1)
+        else:
+            start = end - pd.DateOffset(years=20)
+
+        hdates = pd.date_range(start, periods=20, freq=pd.DateOffset(years=1))
+        return np.array(hdates, dtype="datetime64[D]")
 
 
 class HcCf(Hc):
