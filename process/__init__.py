@@ -4,7 +4,7 @@ import utils
 import glob
 
 
-def process_s2s(cf=None, pf=None, chc=None, phc=None, path_pattern=None, max_lt=46):
+def open_files(cf=None, pf=None, chc=None, phc=None, path_pattern=None, max_lt=46):
     """
     TODO: Can we autodetect max_lt?
     TODO: Compare to process_s2s_ukmo – possible to generalize?
