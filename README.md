@@ -10,7 +10,7 @@ Python tools for working with S2S forecast data
 s2s.download.retreive(parameter=[u, v], level=[850, 500], fc_type=["rt", "hc"], area_nesw_box=[90, 180, 0, -180])
 
 # open with inittime, hc_yr, leadtime dimensions, and optionally validtime variable
-ds = s2s.dim.open_s2s(path, transform=True)
+ds = s2s.process.open_s2s(path, transform=True)
 
 # desesonalize
 clim = s2s.clim.deseasonalize(ds)
