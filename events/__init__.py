@@ -1,11 +1,19 @@
+import json
+import pandas as pd
 import xarray as xr
+import numpy as np
+import utils
+from tqdm import tqdm
+from glob import glob
+from pathlib import Path
 
-def events_list_to_dict(events):
+
+def eventlist_to_dict(events):
     """
     events should have the shape:
     [
-        ((reftime, hc_year, number), days_since_init),
-        ((reftime, hc_year, number), days_since_init),
+        ((reftime, hc_year, number), leadtime),
+        ((reftime, hc_year, number), leadtime),
         ...
     ]
     """
@@ -16,16 +24,16 @@ def events_list_to_dict(events):
                 "hc_year": int(hc_year),
                 "number": int(number),
             },
-            "days_since_init": int(days_since_init),
+            # "leadtime": int(leadtime),
+            "leadtime": pd.Timedelta(leadtime).isoformat(),
         }
-        for (reftime, hc_year, number), days_since_init in events
+        for (reftime, hc_year, number), leadtime in events
     ]
 
     return event_dict
 
 
-def events_dict_to_json(event_dict, path, short_path=False, split_reftimes=False):
-
+def eventdict_to_json(event_dict, path, short_path=False, split_reftimes=False):
     DEFAULT_DIR = (
         "/project/meteo/work/Jonas.Spaeth/Master-Thesis/processed-data/json/s2s_events/"
     )
@@ -49,21 +57,21 @@ def events_dict_to_json(event_dict, path, short_path=False, split_reftimes=False
                 + "_ref{}.json".format(ref_str.replace("-", ""))
                 if short_path
                 else path.split(".json")[0]
-                + "_ref{}.json".format(ref_str.replace("-", ""))
+                     + "_ref{}.json".format(ref_str.replace("-", ""))
             )
             save_dict(events_oneref, path_splitted)
 
 
-def events_split_reftime(event_dict):
+def events_split_reftime(eventdict):
     """
     convert from
-    event_dict = [{"fc": {"reftime": , "hc_year": , "number": }, "days_since_init": }, {...}]
+    event_dict = [{"fc": {"reftime": , "hc_year": , "number": }, "leadtime": }, {...}]
     to
-    event_dict_splitted = [{"reftime": , "events": [{"fc": {"reftime": , "hc_year": , "number": }, "days_since_init": }, {...}]}, {...}]
+    event_dict_splitted = [{"reftime": , "events": [{"fc": {"reftime": , "hc_year": , "number": }, "leadtime": }, {...}]}, {...}]
     """
     event_dict_splitted = []
 
-    for e in event_dict:
+    for e in eventdict:
         ref = e["fc"]["reftime"]
         idx = next(
             (
@@ -82,22 +90,23 @@ def events_split_reftime(event_dict):
 
     return event_dict_splitted
 
-#%%
 
-def composite_from_json(path, data, days_since_init=np.arange(47)):
+# %%
 
+def eventlist_from_json(path):
     event_list = []
     for f in glob(path):
         with open(f) as infile:
             event_list = event_list + json.load(infile)
+    return event_list
 
-    days_since_init = data.days_since_init.values
 
+def composite_from_eventlist(event_list, data):
     event_comp = []
     missing_reftime_keys = []
 
     for event in tqdm(event_list, desc="Opening Events"):
-        central_day = event["days_since_init"]
+        central_day = np.timedelta64(pd.Timedelta(event["leadtime"]))
         if np.datetime64(event["fc"]["reftime"]) in data.reftime.values:
             forecast = data.sel(
                 reftime=event["fc"]["reftime"],
@@ -106,8 +115,8 @@ def composite_from_json(path, data, days_since_init=np.arange(47)):
             )
             event_comp.append(
                 forecast.assign_coords(
-                    days_since_init=days_since_init - central_day
-                ).rename(days_since_init="days_since_event")
+                    leadtime=data.leadtime - central_day
+                ).rename(leadtime="lagtime")
             )
         elif event["fc"]["reftime"] in missing_reftime_keys:
             continue
@@ -124,7 +133,15 @@ def composite_from_json(path, data, days_since_init=np.arange(47)):
     return event_comp.assign_coords(i=event_comp.i)
 
 
+def composite_from_json(path, data):
+    event_list = eventlist_from_json(path)
+    composite = composite_from_eventlist(event_list, data)
+    return composite
+
+
 def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=10):
+    buffer_start, buffer_end, require_westwind_start = map(utils.to_timedelta64,
+                                                           [buffer_start, buffer_end, require_westwind_start])
 
     var = u60_10hPa.squeeze()
     var_stacked = var.stack(fc=["reftime", "hc_year", "number"])
@@ -135,10 +152,10 @@ def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=1
 
     fc_startwest = (
         var_stacked.where(
-            (var_stacked.sel(days_since_init=slice(0, require_westwind_start - 1)) > 0)
+            (var_stacked.sel(leadtime=slice("0D", require_westwind_start - 1)) > 0)
         )
-        .dropna("fc", how="any")
-        .fc
+            .dropna("fc", how="any")
+            .fc
     )
 
     print("\t forecasts start start with 10 days westwind: ", len(fc_startwest))
@@ -148,22 +165,22 @@ def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=1
         fc_run = var_stacked.sel(fc=fc)
 
         # find zero crossing
-        last_day = fc_run.days_since_init.values[-1]
+        last_day = fc_run.leadtime.values[-1]
         eastwinddays = fc_run.where(
-            fc_run.sel(days_since_init=slice(buffer_start, last_day - buffer_end)) < 0,
+            fc_run.sel(leadtime=slice(buffer_start, last_day - buffer_end)) < 0,
             drop=True,
-        ).days_since_init
+        ).leadtime
 
         if len(eastwinddays) > 0:
             events.append([list(np.atleast_1d(fc)[0]), eastwinddays.values[0]])
 
-    event_dict = events_list_to_dict(events)
+    event_dict = eventlist_to_dict(events)
 
     return event_dict
 
 
 def find_dynssw(
-    u_10hPa_60, buffer_start=10, buffer_end=10, require_westwind_start=10
+        u_10hPa_60, buffer_start=10, buffer_end=10, require_westwind_start=10
 ):
     var_stacked = u_10hPa_60.stack(fc=["reftime", "hc_year", "number"])
     var_stacked_valid = var_stacked.dropna("fc", how="all")
@@ -173,10 +190,10 @@ def find_dynssw(
 
     fc_startwest = (
         var_stacked.where(
-            (var_stacked.sel(days_since_init=slice(0, require_westwind_start - 1)) > 0)
+            (var_stacked.sel(leadtime=slice(0, require_westwind_start - 1)) > 0)
         )
-        .dropna("fc", how="any")
-        .fc
+            .dropna("fc", how="any")
+            .fc
     )
 
     print("\t forecasts start start with 10 days westwind: ", len(fc_startwest))
@@ -186,21 +203,21 @@ def find_dynssw(
         fc_run = var_stacked.sel(fc=fc)
 
         # find zero crossing
-        last_day = fc_run.days_since_init.values[-1]
+        last_day = fc_run.leadtime.values[-1]
         eastwinddays = fc_run.where(
-            fc_run.sel(days_since_init=slice(buffer_start, last_day - buffer_end)) < 0,
+            fc_run.sel(leadtime=slice(buffer_start, last_day - buffer_end)) < 0,
             drop=True,
-        ).days_since_init
+        ).leadtime
 
         if len(eastwinddays) > 0:
             TIMEDELTA = 5
-            neg_lag = fc_run.sel(days_since_init=(eastwinddays[0] - TIMEDELTA))
-            pos_lag = fc_run.sel(days_since_init=(eastwinddays[0] + TIMEDELTA))
+            neg_lag = fc_run.sel(leadtime=(eastwinddays[0] - TIMEDELTA))
+            pos_lag = fc_run.sel(leadtime=(eastwinddays[0] + TIMEDELTA))
 
             if neg_lag - pos_lag > 20:
                 events.append([list(np.atleast_1d(fc)[0]), eastwinddays.values[0]])
 
-    event_dict = events_list_to_dict(events)
+    event_dict = eventlist_to_dict(events)
 
     return event_dict
 
@@ -225,8 +242,8 @@ def find_nam1000(nam1000, extr_type="", **kwargs):
             raise Exception("Invalid extr_type. Must be 'negative' or 'positive'.")
 
         if res:
-            events.append([list(np.atleast_1d(res.fc)[0]), int(res.days_since_init)])
+            events.append([list(np.atleast_1d(res.fc)[0]), int(res.leadtime)])
 
-    event_dict = events_list_to_dict(events)
+    event_dict = eventlist_to_dict(events)
 
     return event_dict

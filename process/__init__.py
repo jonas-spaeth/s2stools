@@ -127,3 +127,17 @@ def open_files(cf=None, pf=None, chc=None, phc=None, path_pattern=None, max_lt=4
         hc_merged = xr.concat(hc, dim="number")
         res.append(hc_merged)
     return xr.concat(res, dim="hc_year").sortby("hc_year")
+
+
+def stack_fc(d, reset_index=True):
+    if reset_index:
+        return d.stack(fc=("reftime", "hc_year", "number")).reset_index("fc")
+    else:
+        return d.stack(fc=("reftime", "hc_year", "number"))
+
+
+def stack_ensfc(d, reset_index=True):
+    if reset_index:
+        return d.stack(fc=("reftime", "hc_year")).reset_index("fc")
+    else:
+        return d.stack(fc=("reftime", "hc_year"))
