@@ -29,6 +29,7 @@ def open_files(cf=None, pf=None, chc=None, phc=None, path_pattern=None, max_lt=4
     valid_rt = cf or pf
     if valid_rt is None:
         raise NotImplementedError("Without reading realtime forecasts, cannot infer leadtime.")
+    print("valid_rt: ", valid_rt) # delete later
     onefile_path = glob.glob(valid_rt)[0]
     onefile_ds = xr.open_dataset(onefile_path)
     lt = (onefile_ds.time.values - onefile_ds.time.values[0]).astype("timedelta64[h]")
