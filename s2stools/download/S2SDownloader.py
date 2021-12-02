@@ -1,13 +1,10 @@
-# from abc import ABC, abstractmethod
 from ecmwfapi import ECMWFDataServer
-import utils
-from pprint import pprint
 
 
 class S2SDownloader:
     DEFAULT_REQUEST = {
         "class": "s2",
-        "dataset": "s2s",
+        "dataset": "s2stools",
         "expver": "prod",
         # "date": '2021-02-04',
         "expver": "prod",

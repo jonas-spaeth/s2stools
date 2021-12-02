@@ -1,13 +1,9 @@
 import numpy as np
 import datetime
-import pandas as pd
-from download import S2SDownloader
-import utils
-from download.ecmwf.model_setup import *
 import json
 from datetime import datetime
-from pprint import pprint
-
+from .. import S2SDownloader
+from .model_setup import *
 
 class S2SDownloaderECMWF(S2SDownloader):
     DEFAULT_REQUEST_ECMWF = {
@@ -103,7 +99,7 @@ class S2SDownloaderECMWF(S2SDownloader):
 
     def make_request_info_file(self, path, file_descr, fc_type, full_request, all_dates):
         """
-        Create a .json file including information about s2s request.
+        Create a .json file including information about s2stools request.
         Args:
             path (str): Directory to place file.
             file_descr (str): Description of fields that is included in file name.

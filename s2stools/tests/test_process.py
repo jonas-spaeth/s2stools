@@ -1,21 +1,18 @@
 from unittest import TestCase
-import process
+from s2stools import process, utils
 import os
 import xarray as xr
-
-import utils
 
 
 class TestProcess(TestCase):
 
     def test_open_files(self):
-        directory = "../data/"
-        print(os.listdir("../data"))
+        directory = "../../data/"
         ds = process.open_files(path_pattern=directory + "s2s_ecmwf_uv_20*", max_lt=1)
         self.assertIsInstance(ds, xr.Dataset)
 
     def test_add_validtime(self):
-        ds = process.open_files(path_pattern="../data/s2s_ecmwf_uv_20*")
+        ds = process.open_files(path_pattern="../../data/s2s_ecmwf_uv_20*")
         print(ds)
         ds_vt = process.add_validtime(ds)
         self.assertIn("validtime", list(ds_vt.coords))

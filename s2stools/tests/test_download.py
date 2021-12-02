@@ -2,10 +2,8 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 
-from download.ecmwf import S2SDownloaderECMWF, model_setup
-import xarray as xr
-import matplotlib.pyplot as plt
-import pandas
+from s2stools.download.ecmwf import S2SDownloaderECMWF
+from s2stools.download.ecmwf import model_setup
 
 
 class TestS2SDownloaderECMWF(TestCase):
@@ -21,7 +19,7 @@ class TestS2SDownloaderECMWF(TestCase):
                 reftime=dates[:5],
                 plevs=[1000],
                 step=[0, 24],
-                path="../data",
+                path="../../data",
                 grid="2.5/2.5",
                 rt_cf_kwargs={},
                 rt_pf_kwargs=dict(number="1/2/3"),

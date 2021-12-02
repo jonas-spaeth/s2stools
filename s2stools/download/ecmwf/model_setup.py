@@ -1,8 +1,7 @@
 import pandas as pd
 
-import utils
+from s2stools import utils
 import numpy as np
-import pandas
 
 
 class Rt:

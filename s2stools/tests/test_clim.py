@@ -1,11 +1,11 @@
 from unittest import TestCase
-import clim
-import process
+from s2stools import clim, process
+
 
 class TestClim(TestCase):
     
     def test_deseasonalize(self):
-        data = process.open_files(path_pattern="../data/s2s_*")
+        data = process.open_files(path_pattern="../../data/s2s_*")
         # absolute anomalies
         anom = clim.deseasonalize(data, standardize=False)
         for var in list(anom.keys()):
