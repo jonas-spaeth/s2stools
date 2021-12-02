@@ -1,7 +1,10 @@
-import xarray as xr
-import numpy as np
 from tqdm import tqdm
-from ._process_events import *
+import numpy as np
+import pandas as pd
+import xarray as xr
+import json
+from glob import glob
+
 
 def composite_from_eventlist(event_list, data):
     event_comp = []
@@ -41,3 +44,17 @@ def composite_from_json(path, data):
     return composite
 
 
+def eventlist_from_json(path):
+    """Read a bunch of json files and generate + return an event list.
+
+    Args:
+        path (str): directory of json files, supports path globbing
+
+    Returns:
+        list: event list of format [{"fc": {"reftime": None, "hc_year": None, "number": None}, "days_since_init": None}, {...}]
+    """
+    event_list = []
+    for f in glob(path):
+        with open(f) as infile:
+            event_list = event_list + json.load(infile)
+    return event_list
