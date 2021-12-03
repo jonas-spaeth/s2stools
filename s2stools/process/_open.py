@@ -20,16 +20,16 @@ def open_files(cf=None, pf=None, chc=None, phc=None, path_pattern=None, max_lt=4
 
     """
     if path_pattern:
-        cf = path_pattern + "_rt_cf.nc" or cf
-        pf = path_pattern + "_rt_pf.nc" or pf
-        chc = path_pattern + "_hc_cf.nc" or chc
-        phc = path_pattern + "_hc_pf.nc" or phc
+        cf = path_pattern + (cf or "_rt_cf.nc")
+        pf = path_pattern + (pf or "_rt_pf.nc")
+        chc = path_pattern + (chc or "_hc_cf.nc")
+        phc = path_pattern + (phc or "_hc_pf.nc")
 
     # obtain lead time
     valid_rt = cf or pf
     if valid_rt is None:
         raise NotImplementedError("Without reading realtime forecasts, cannot infer leadtime.")
-    print("valid_rt: ", valid_rt) # delete later
+    print("realtime path: ", valid_rt)
     onefile_path = glob.glob(valid_rt)[0]
     onefile_ds = xr.open_dataset(onefile_path)
     lt = (onefile_ds.time.values - onefile_ds.time.values[0]).astype("timedelta64[h]")
