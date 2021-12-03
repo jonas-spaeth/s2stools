@@ -29,3 +29,14 @@ class TestEvents(TestCase):
         ds = process.open_files(path_pattern="../../data/s2s_ecmwf_uv_20*")
         comp = events.composite_from_json("../../data/events/ssw/*.json", ds)
         self.assertIn("i", list(comp.dims))
+
+    def test_rename_eventlist_key(self):
+        eventlist = [{'fc': {'reftime': '2021-01-21', 'hc_year': -20, 'number': 0},
+                      'days_since_init': 19},
+                     {'fc': {'reftime': '2021-01-21', 'hc_year': -20, 'number': 3},
+                      'days_since_init': 30}]
+        new_eventlist = events.rename_eventlist_key(eventlist, {"days_since_init": "leadtime"})
+        self.assertNotIn("leadtime", eventlist[0].keys())
+        self.assertIn("days_since_init", eventlist[0].keys())
+        self.assertIn("leadtime", new_eventlist[0].keys())
+        self.assertNotIn("days_since_init", new_eventlist[0].keys())

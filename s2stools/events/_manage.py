@@ -4,6 +4,7 @@ import pandas as pd
 import xarray as xr
 import json
 from glob import glob
+import copy
 
 
 def composite_from_eventlist(event_list, data):
@@ -58,3 +59,20 @@ def eventlist_from_json(path):
         with open(f) as infile:
             event_list = event_list + json.load(infile)
     return event_list
+
+
+def rename_eventlist_key(eventlist, mapping):
+    """
+
+    Args:
+        mapping (dict): {"<oldkey>": "<newkey>"}
+
+    Returns:
+        updated eventlist
+    """
+    new_eventlist = copy.deepcopy(eventlist)
+    for e in new_eventlist:
+        for oldname, newname in mapping.items():
+            if oldname in e:
+                e[newname] = e.pop(oldname)
+    return new_eventlist
