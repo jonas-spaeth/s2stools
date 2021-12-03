@@ -76,3 +76,11 @@ def rename_eventlist_key(eventlist, mapping):
             if oldname in e:
                 e[newname] = e.pop(oldname)
     return new_eventlist
+
+
+def format_eventlist_dayssinceinit_to_pdtimedeltastamp(eventlist):
+    new_eventlist = copy.deepcopy(eventlist)
+    for e in new_eventlist:
+        e["leadtime"] = e.pop("days_since_init")
+        e["leadtime"] = pd.Timedelta(e["leadtime"], "D").isoformat()
+    return new_eventlist

@@ -40,3 +40,11 @@ class TestEvents(TestCase):
         self.assertIn("days_since_init", eventlist[0].keys())
         self.assertIn("leadtime", new_eventlist[0].keys())
         self.assertNotIn("days_since_init", new_eventlist[0].keys())
+
+    def test_format_eventlist_dayssinceinit_to_pdtimedeltastamp(self):
+        eventlist = [{'fc': {'reftime': '2021-01-21', 'hc_year': -20, 'number': 0},
+                      'days_since_init': 19},
+                     {'fc': {'reftime': '2021-01-21', 'hc_year': -20, 'number': 3},
+                      'days_since_init': 30}]
+        new_eventlist = events.format_eventlist_dayssinceinit_to_pdtimedeltastamp(eventlist)
+        print(new_eventlist)
