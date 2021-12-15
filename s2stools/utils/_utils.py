@@ -1,3 +1,4 @@
+import calendar
 import numpy as np
 import pandas as pd
 
@@ -14,15 +15,46 @@ def list_to_string(l):
 
 
 def add_years(dt64, years):
-    # DEPRECATED DUE TO UNEXPECTED RESULTS:
-    #### td_1yr = np.timedelta64(365, "D") + np.timedelta64(6, "h")
-    #### return (dt64 + years * td_1yr).astype("datetime64[D]")
-    # NEW:
+    """
+    Add year to date.
+    Args:
+        dt64 ([datetime64], datetime64): date to change
+        years ([int], int): how many years to add. If scalar, add same year to each date, if list then years must have same shape as dt64.
+
+    Returns:
+        new date(s) with same shape as dt64
+    """
     pd_dt = pd.to_datetime(dt64)
-    if (pd_dt.month == 2) & (pd_dt.day == 29):
-        res = pd_dt + pd.DateOffset(years=years) - pd.DateOffset(days=1)
+    if len(np.atleast_1d(years)) == 1:
+
+        def replace_year(x):
+            if (
+                    (x.month == 2)
+                    & (x.day == 29)
+                    & (calendar.isleap(x.year + years) == False)
+            ):
+                return x.replace(year=x.year + years, day=28)
+            else:
+                return x.replace(year=x.year + years)
+
+        res = pd.Series(pd_dt).apply(replace_year)
     else:
-        res = pd_dt + pd.DateOffset(years=years)
+        assert np.array(dt64).shape == np.array(years).shape
+        res = []
+        for i in range(len(dt64)):
+            pd_dt = pd.to_datetime(dt64[i])
+            if (
+                    (pd_dt.month == 2)
+                    & (pd_dt.day == 29)
+                    & (calendar.isleap(pd_dt.year + years[i]) == False)
+            ):
+                res.append(pd_dt.replace(year=pd_dt.year + years[i], day=28))
+            else:
+                res.append(pd_dt.replace(year=pd_dt.year + years[i]))
+
+    res = np.array(res, "datetime64[D]")
+    if len(res) == 1:
+        res = res[0]
     return res
 
 

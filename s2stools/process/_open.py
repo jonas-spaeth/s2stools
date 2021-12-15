@@ -50,7 +50,7 @@ def open_files(cf=None, pf=None, chc=None, phc=None, path_pattern=None, max_lt=4
         max_lt = lt.max()  # maximum leadtime
         n_lt = len(lt)  # n leadtime steps
         lt_ts = lt[1] - lt[0]  # leadtime timestep
-        hindcast = True if len(x.time) > max_lt + 1 else False
+        hindcast = True if len(x.time) > n_lt else False
         reftime = utils.add_years(x.time[0].values, 20) if hindcast else x.time[0].values
         x = x.assign_coords(reftime=reftime)
 
