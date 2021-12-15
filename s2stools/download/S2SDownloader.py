@@ -4,7 +4,7 @@ from ecmwfapi import ECMWFDataServer
 class S2SDownloader:
     DEFAULT_REQUEST = {
         "class": "s2",
-        "dataset": "s2stools",
+        "dataset": "s2s",
         "expver": "prod",
         # "date": '2021-02-04',
         "expver": "prod",
