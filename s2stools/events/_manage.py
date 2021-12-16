@@ -10,7 +10,6 @@ import copy
 def composite_from_eventlist(event_list, data):
     event_comp = []
     missing_reftime_keys = []
-
     for event in tqdm(event_list, desc="Opening Events"):
         central_day = np.timedelta64(pd.Timedelta(event["leadtime"]))
         if np.datetime64(event["fc"]["reftime"]) in data.reftime.values:

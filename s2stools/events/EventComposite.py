@@ -1,3 +1,5 @@
+import pandas as pd
+
 from ._infer_statistics import *
 from ._infer_metadata import *
 from ._utils import *
@@ -24,11 +26,18 @@ class EventComposite:
         self.descr = descr
         self.model = model
         # events from json
-        self.event_list_json = eventlist_from_json(
-            event_jsons_path.replace("MODEL", model)
-        )
+        if isinstance(event_jsons_path, str):
+            # assert that event_jsons_path describes a path
+            self.event_list_json = eventlist_from_json(
+                event_jsons_path.replace("MODEL", model)
+            )
+        elif isinstance(event_jsons_path, list):
+            # assert event_jsons_path is the list of events
+            self.event_list_json = event_jsons_path
+        else:
+            raise TypeError
         # create composite from event list
-        self.comp = composite_from_eventlist(data, self.event_list_json)
+        self.comp = composite_from_eventlist(self.event_list_json, data)
 
     def __len__(self):
         return len(self.comp.i)
@@ -49,7 +58,7 @@ class EventComposite:
 
         data_comp_mean.u60.plot(ax=ax[0], color=c)
         ax[0].fill_between(
-            data_comp.days_since_event.values,
+            data_comp.lagtime.values,
             data_comp_mean.u60 + data_comp_std.u60,
             data_comp_mean.u60 - data_comp_std.u60,
             alpha=0.2,
@@ -63,7 +72,7 @@ class EventComposite:
         ax[0].set_ylabel("u60, 10hPa [m/s]\n(dashed: anomaly)")
         ax[0].set_title("")
         ax0_2.plot(
-            self.comp.days_since_event.values,
+            self.comp.lagtime.values,
             np.array(n_contr_events) / n_events,
             linestyle="dotted",
             c="dimgray",
@@ -77,7 +86,7 @@ class EventComposite:
 
         data_comp_mean.nam200.plot(ax=ax[1], color=c)
         ax[1].fill_between(
-            data_comp.days_since_event.values,
+            data_comp.lagtime.values,
             data_comp_mean.nam200 + data_comp_std.nam200,
             data_comp_mean.nam200 - data_comp_std.nam200,
             alpha=0.2,
@@ -88,7 +97,7 @@ class EventComposite:
 
         data_comp_mean.nam1000.plot(ax=ax[2], color=c)
         ax[2].fill_between(
-            data_comp.days_since_event.values,
+            data_comp.lagtime.values,
             data_comp_mean.nam1000 + data_comp_std.nam1000 * 0.1,
             data_comp_mean.nam1000 - data_comp_std.nam1000 * 0.1,
             alpha=0.2,
@@ -117,7 +126,7 @@ class EventComposite:
                 x.axvline(0, color="black", alpha=0.3, linewidth=1)
                 x.xaxis.set_major_locator(ticker.MultipleLocator(7))
                 x.set_xlim(
-                    data_comp.days_since_event[0], data_comp.days_since_event[-1]
+                    data_comp.lagtime[0], data_comp.lagtime[-1]
                 )
 
         fig.suptitle("Composite over {} {}".format(n_events, title_event_name))
@@ -144,7 +153,7 @@ class EventComposite:
 
         # quantiles
         ax.fill_between(
-            self.comp.days_since_event,
+            self.comp.lagtime,
             data_comp_min.nam1000,
             quantiles["2"].nam1000,
             alpha=0.2,
@@ -152,7 +161,7 @@ class EventComposite:
             label="0-2 Percentile",
         )
         ax.fill_between(
-            self.comp.days_since_event,
+            self.comp.lagtime,
             quantiles["10"].nam1000,
             quantiles["90"].nam1000,
             alpha=0.9,
@@ -160,7 +169,7 @@ class EventComposite:
             label="10-90 Percentile",
         )
         ax.fill_between(
-            self.comp.days_since_event,
+            self.comp.lagtime,
             quantiles["30"].nam1000,
             quantiles["70"].nam1000,
             alpha=0.9,
@@ -168,7 +177,7 @@ class EventComposite:
             label="30-70 Percentile",
         )
         ax.fill_between(
-            self.comp.days_since_event,
+            self.comp.lagtime,
             quantiles["98"].nam1000,
             data_comp_max.nam1000,
             alpha=0.2,
@@ -284,28 +293,15 @@ class EventComposite:
         ax = axs[0, 1]  # *** BY MONTH ***
 
         count_month_df = (
-            pd.concat([event_dates, event_dates_rt], axis=1)
+            pd.concat([pd.to_datetime(event_dates), pd.to_datetime(event_dates_rt)], axis=1)
                 .applymap(lambda t: t.month)
                 .apply(pd.Series.value_counts)
         )
         fc_day_dates_permonth_df = pd.concat(
             [fc_day_dates_permonth_all, fc_day_dates_permonth_rt], axis=1
         )
-        # p = (
-        #     count_month_df.reindex(list(range(7, 13)) + list(range(1, 7)))
-        #     .dropna(how="all")
-        #     .plot.bar(
-        #         ax=ax,
-        #         color=[color, "yellowgreen"],
-        #         edgecolor=color,
-        #         legend=False,
-        #         stacked=True,
-        #     )
-        # )
-        # ax.set_xlabel("by month")
         ax.axis("off")
 
-        ### develop labels
         n_fc = (
             count_month_df["all"]
                 .reindex(list(range(7, 13)) + list(range(1, 7)))
@@ -314,7 +310,6 @@ class EventComposite:
         )
         lbls = ["{:.0f}".format(n) for n in n_fc]  ## fc:
 
-        ### \develop
         ax = axs[1, 1]  # *** BY MONTH (NORMALIZED) ***
 
         count_month_df_hc_normalized = count_month_df / fc_day_dates_permonth_df
@@ -323,22 +318,6 @@ class EventComposite:
                 .reindex(list(range(7, 13)) + list(range(1, 7)))
                 .dropna(how="all")
         )
-        # count_month_df_hc_normalized = (
-        #     count_month_df_hc_normalized / count_month_df_hc_normalized.sum()
-        # )
-
-        # p = (
-        #     (count_month_df / fc_day_dates_permonth_df)
-        #     .reindex(list(range(7, 13)) + list(range(1, 7)))
-        #     .dropna(how="all")
-        #     .plot.bar(
-        #         ax=ax,
-        #         color=[color, "yellowgreen"],
-        #         edgecolor=color,
-        #         legend=False,
-        #         width=0.6,
-        #     )
-        # )
         p = count_month_df_hc_normalized.plot.bar(
             ax=ax, legend=False, width=0.6, color="k", edgecolor="k"
         )
@@ -371,7 +350,7 @@ class EventComposite:
         # count_leadtime.plot.bar(ax=ax, color=color, edgecolor=color)
         count_leadtime.plot.bar(ax=ax, color="yellowgreen", edgecolor=color, hatch="//")
         count_leadtime_hc.plot.bar(ax=ax, color=color)
-        ax.set_xlabel("by forecast lead time [days]")
+        ax.set_xlabel("by leadtime [days]")
         ax.set_ylabel("absolute frequency")
         ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
 
@@ -400,8 +379,6 @@ class EventComposite:
             ncol=1,
         )
 
-        # fig.suptitle("event occurrences")
-
         if save:
             pass
             # fig.savefig(
@@ -424,12 +401,12 @@ class EventComposite:
     ):
 
         extreme_probability = extreme_predictors(self.comp)
-        dse = self.comp.days_since_event.values
+        dse = self.comp.lagtime.values
 
         def compute_base_probabilities(thresholds):
             res = []
             stacked_days = self.data.stack(
-                days=("reftime", "hc_year", "number", "days_since_init")
+                days=("reftime", "hc_year", "number", "leadtime")
             )
             n_tot = len(stacked_days.dropna("days").days)
             for thr in thresholds:
@@ -488,7 +465,7 @@ class EventComposite:
         )
         # x.annotate("", (0, 0.012), (28, 0.012), arrowprops={"arrowstyle": "<->"})
         # integrated_prob = 1 - float(
-        #     (1 - da_m2.sel(days_since_event=slice(1, 28))).prod("days_since_event")
+        #     (1 - da_m2.sel(lagtime=slice(1, 28))).prod("lagtime")
         # )
         # integrated_prob_clim = 1 - float((1 - base_probabilities[1]) ** 28)
         # x.text(
@@ -522,7 +499,7 @@ class EventComposite:
             x.xaxis.set_major_locator(ticker.MultipleLocator(7))
             x.tick_params(axis="both", which="both", length=0)
             x.axvline(0, color="black", alpha=0.3, lw=1)
-        ax[2].set_xlabel("days_since_event")
+        ax[2].set_xlabel("lagtime")
 
         fig.tight_layout()
         fig.suptitle("fraction of {} with extreme NAM1000".format(title_event_name))

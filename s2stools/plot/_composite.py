@@ -12,11 +12,12 @@ def composite_overview(ds):
     ds_mean = ds.mean("i")
     for i, v in enumerate(var_list):
         ax = axes[i]
-        ds_mean[v].plot(ax=ax, c="k", lw=2)
+        ds_mean[v].plot(ax=ax, color="k", lw=2)
         xaxis_unit_days(ax, multiple=14)
         ax.set_xlabel("")
-        ax.axhline(0, lw=1, c="gray", zorder=-5)
-        ax.axvline(0, lw=1, c="gray", zorder=-5)
+        ax.set_title("")
+        ax.axhline(0, lw=1, color="gray", zorder=-5)
+        ax.axvline(0, lw=1, color="gray", zorder=-5)
         if "nam" in v:
             symmetric_ylim(ax)
 

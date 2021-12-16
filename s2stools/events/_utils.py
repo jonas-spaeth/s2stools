@@ -42,13 +42,16 @@ def replace_year(dt64, year):
     return np.datetime64(dt).astype("datetime64[D]")
 
 
-def fc_dates(reftime=None, hc_year=None, days_since_init=None, data=None):
+def fc_dates(reftime=None, hc_year=None, leadtime=None, data=None):
     if data is not None:
-        reftime, hc_year, days_since_init = (
-            data.reftime,
-            data.hc_year,
-            data.days_since_init,
+        reftime, hc_year, leadtime = (
+            data.reftime.values,
+            data.hc_year.values,
+            data.leadtime.values,
         )
-    days_since_init = np.array(days_since_init)
-    dates = utils.add_years(reftime, hc_year) + days_since_init
+    else:
+        reftime = np.array(reftime)
+        hc_year = np.array(hc_year)
+        leadtime = np.array(leadtime)
+    dates = utils.add_years(reftime, hc_year) + leadtime
     return dates
