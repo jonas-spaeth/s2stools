@@ -68,6 +68,8 @@ class S2SDownloaderECMWF(S2SDownloader):
             for fc_type, fc_type_kwargs, fc_type_class in [("rt_cf", rt_cf_kwargs, RtCf), ("rt_pf", rt_pf_kwargs, RtPf),
                                                            ("hc_cf", hc_cf_kwargs, HcCf),
                                                            ("hc_pf", hc_pf_kwargs, HcPf)]:
+                if fc_type_kwargs.get("skip", False):
+                    continue
                 fc_type_kwargs = dict(fc_type_class(d).request, **fc_type_kwargs)
                 self.request["target"] = path + "/" + self.file_name(
                     file_descr=file_descr, fc_type=fc_type, reftime=d
