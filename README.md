@@ -2,6 +2,11 @@
 
 Python tools for working with S2S forecast data
 
+##### Build:
+````
+pip install -i https://test.pypi.org/simple/ s2stools
+````
+
 ##### workflow later
 
 ```python

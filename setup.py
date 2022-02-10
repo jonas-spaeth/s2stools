@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = '0.0.5'
+VERSION = '0.0.6'
 DESCRIPTION = 'My first Python package'
 LONG_DESCRIPTION = 'My first Python package with a slightly longer description'  # open('README.txt').read()
 
