@@ -48,7 +48,7 @@ class S2SDownloaderECMWF(S2SDownloader):
 
         # all forecast steps
         if step == "all":
-            step = self.FC_STEP
+            step = self.STEP_ALL
         else:
             step = utils.list_to_string(step)
         self.request["step"] = step
