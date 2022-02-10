@@ -1,6 +1,7 @@
 import calendar
 import numpy as np
 import pandas as pd
+import calendar
 
 
 def list_to_string(l):
@@ -71,3 +72,17 @@ def to_timedelta64(a, assume="D"):
     if isinstance(a, int):
         a = np.timedelta64(a, "D")
     return a
+
+
+def month_int_to_abbr(months):
+    """
+    convert e.g. [12, 1, 2] to ["Dec", "Jan", "Feb"]
+    Args:
+        months: one month or list of months as integers
+
+    Returns:
+        list of str
+    """
+    months = np.atleast_1d(months)
+    d = {index: month for index, month in enumerate(calendar.month_abbr) if month}
+    return [d[m] for m in months]
