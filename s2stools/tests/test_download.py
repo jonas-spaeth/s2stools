@@ -28,6 +28,27 @@ class TestS2SDownloaderECMWF(TestCase):
                 write_info_file=True
             )
 
+    def test_retreive_rt_cf_only(self):
+        if True:  # set to true to test download via ECMWF API
+            dl = S2SDownloaderECMWF()
+            dates = np.arange("2020-11-15", "2020-12-20", dtype="datetime64[D]")
+
+            dl.retreive(
+                param=["u", "v"],
+                file_descr="uv",
+                reftime=dates[:5],
+                plevs=[1000],
+                step=[0, 24],
+                path="../../data",
+                grid="2.5/2.5",
+                rt_cf_kwargs={},
+                rt_pf_kwargs=dict(number="1/2/3", skip=True),
+                hc_cf_kwargs=dict(skip=True), #hdate="2000-11-16/2001-11-16"
+                hc_pf_kwargs=dict(number="1/2", skip=True),
+                write_info_file=True
+            )
+
+
     def test_filter_reftimes(self):
         dl = S2SDownloaderECMWF()
         dates = np.arange("2021-11-15", "2021-12-15", dtype="datetime64[D]")
