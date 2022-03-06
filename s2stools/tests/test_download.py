@@ -9,7 +9,7 @@ from s2stools.download.ecmwf import model_setup
 class TestS2SDownloaderECMWF(TestCase):
 
     def test_retreive(self):
-        if True:  # set to true to test download via ECMWF API
+        if False:  # set to true to test download via ECMWF API
             dl = S2SDownloaderECMWF()
             dates = np.arange("2020-11-15", "2020-12-20", dtype="datetime64[D]")
 
@@ -29,7 +29,7 @@ class TestS2SDownloaderECMWF(TestCase):
             )
 
     def test_retreive_rt_cf_only(self):
-        if True:  # set to true to test download via ECMWF API
+        if False:  # set to true to test download via ECMWF API
             dl = S2SDownloaderECMWF()
             dates = np.arange("2020-11-15", "2020-12-20", dtype="datetime64[D]")
 
