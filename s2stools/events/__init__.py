@@ -6,3 +6,4 @@ from ._manage import *
 from ._utils import *
 from ._infer_metadata import *
 from ._extreme_prob import *
+from ._ssw_compendium import *
