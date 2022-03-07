@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 def ssw_compendium_event_dates(column='ERA-Interim'):
     # read html table from SSW compendium
     result = pd.read_html(

@@ -4,6 +4,7 @@ from ._infer_statistics import *
 from ._infer_metadata import *
 from ._utils import *
 from ._manage import *
+from ._leadtime_lagtime_conversion import *
 from ._extreme_prob import *
 import matplotlib.pyplot as plt
 from matplotlib import ticker
@@ -22,7 +23,6 @@ class EventComposite:
     def __init__(self, data, event_jsons_path, descr, model, plot_colors=None):
         if plot_colors:
             self.plot_colors = self.plot_colors | plot_colors
-        self.data = data
         self.descr = descr
         self.model = model
         # events from json
@@ -36,8 +36,12 @@ class EventComposite:
             self.event_list_json = event_jsons_path
         else:
             raise TypeError
+        # assert that data has key leadtime, not days_since_init
+        self.data = dataset_ensure_leadtime_key(data)
+        # assert that event_list has key leadtime, not days_since_init
+        self.event_list_json = eventlist_ensure_leadtime_key(self.event_list_json)
         # create composite from event list
-        self.comp = composite_from_eventlist(self.event_list_json, data)
+        self.comp = composite_from_eventlist(self.event_list_json, self.data)
 
     def __len__(self):
         return len(self.comp.i)

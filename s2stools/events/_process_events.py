@@ -1,4 +1,6 @@
 import json
+
+import numpy as np
 import pandas as pd
 from glob import glob
 from pathlib import Path
@@ -93,3 +95,27 @@ def eventlist_from_json(path):
         with open(f) as infile:
             event_list = event_list + json.load(infile)
     return event_list
+
+
+def all_events_but_listed(data, exclude_list):
+    """
+    # TODO: not tested, but would be nice to have!
+    Args:
+        data ():
+        exclude_list ():
+
+    Returns:
+
+    """
+    print("Warning: Function not tested.")
+    data_stacked = data.stack(fc=("reftime", "hc_year", "number"))
+
+    coord_dict = [
+        (np.datetime64(x["fc"]["reftime"]), x["fc"]["hc_year"], x["fc"]["number"])
+        for x in exclude_list
+    ]
+
+    result = data_stacked.dropna("fc", how="all").drop_sel(
+        fc=data_stacked.sel(fc=coord_dict).fc
+    )
+    return result
