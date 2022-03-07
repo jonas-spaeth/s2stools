@@ -4,27 +4,14 @@ Python tools for working with S2S forecast data
 
 ##### Build:
 ````
-pip install -i https://test.pypi.org/simple/ s2stools
+pip install s2stools
 ````
 
-##### workflow later
+##### Examples:
 
-```python
+see notebooks in examples/
 
-# download and store data
-s2s.download.retreive(parameter=[u, v], level=[850, 500], fc_type=["rt", "hc"], area_nesw_box=[90, 180, 0, -180])
 
-# open with inittime, hc_yr, leadtime dimensions, and optionally validtime variable
-ds = s2s.process.open_s2s(path, transform=True)
+##### Contact:
 
-# desesonalize
-clim = s2s.clim.deseasonalize(ds)
-anom = s2s.clim.anom_from_clim(ds, clim)
-
-# event composite
-eventlist = stos.events.find_events(ds, algorithm)
-ds_comp = stos.events.composite_from_eventlist(eventlist)
-
-# plotting
-s2s.plot.spaghetti(ds)
-````
+jonas.spaeth@physik.uni-muenchen.de
