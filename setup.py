@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = '0.0.14'
+VERSION = '0.0.17'
 DESCRIPTION = 'python tools for handling s2s forecast data'
 LONG_DESCRIPTION = 'python tools for handling s2s forecast data.' \
                    'Including submodules: ' \

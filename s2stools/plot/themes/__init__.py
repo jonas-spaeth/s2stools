@@ -1,1 +1,1 @@
-from ._themes import *
+from ._mpl_themes import *
