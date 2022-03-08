@@ -13,7 +13,7 @@ def date_to_winter_season(date):
     return str(y1)[:] + "/ " + str(y2)[-2:]
 
 
-def annotate_bars(ax, labels):
+def annotate_bars(ax, labels, **kwargs):
     # labels on top of bars
     rects = ax.patches
 
@@ -27,6 +27,7 @@ def annotate_bars(ax, labels):
             ha="center",
             va="bottom",
             rotation=90,
+            **kwargs
         )
     ax.set_ylim(None, ylim[1] * 1.5)
 
