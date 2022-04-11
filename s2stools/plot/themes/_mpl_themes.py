@@ -9,7 +9,7 @@ def beach_towel():
 
     mpl.rcParams.update(mpl.rcParamsDefault)
     mpl.rcParams["lines.linewidth"] = 3
-    mpl.rcParams["axes.prop_cycle"] = cycler(color=[c1, c2, c3, "yellowgreen", "navy"])
+    mpl.rcParams["axes.prop_cycle"] = cycler(color=[c1, c2, c3, "yellowgreen", "navy", "orchid", "tan", "teal"])
     mpl.rcParams["font.size"] = 12
     mpl.rcParams["legend.fontsize"] = "small"
     mpl.rcParams["font.weight"] = "light"

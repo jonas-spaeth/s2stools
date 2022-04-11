@@ -33,3 +33,34 @@ def fill_between(dataarray, x, y, ax=None, ci=None, **kwargs):
         plt.fill_between(x_vals, *y_q, **kwargs)
     else:
         ax.fill_between(x_vals, *y_q, **kwargs)
+
+
+def mean_and_error(
+    da,
+    x,
+    y,
+    hue=None,
+    plot_mean=True,
+    ci=None,
+    ax=None,
+    fill_kwargs={},
+    line_kwargs={},
+    legend_kwargs={},
+):
+    if ax is None:
+        fig, ax = plt.subplots()
+    else:
+        fig = plt.gcf()
+
+    def plot_helper(da, label=None):
+        s2stools.plot.fill_between(da, x, y, ax=ax, ci=ci, **fill_kwargs)
+        if plot_mean:
+            da.mean(y).plot(ax=ax, label=label, **line_kwargs)
+
+    if hue is not None:
+        for hue_sel in da[hue]:
+            plot_helper(da.sel({hue: hue_sel}), label=hue_sel.values)
+        ax.legend(**legend_kwargs)
+    else:
+        plot_helper(da.sel({hue: hue_sel}), label=hue_sel.values)
+    return ax
