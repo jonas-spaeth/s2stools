@@ -148,9 +148,12 @@ def threshold_exceedance_in_forecasts(forecasts: xr.DataArray, threshold: float,
     for fc in forecasts_stacked.T:
         fc_values = fc.values
         # if above use > threshold, else use < threshold
-        comparison = lambda x: x > threshold if above else lambda x: x < threshold
+        if above:
+            comparison = fc_values > threshold
+        else:
+            comparison = fc_values < threshold
         # find consecutive elements that fulfill condition: get start indices, end indices, values during exceedance
-        starts, ends, values = blocks_where(fc_values, comparison(fc_values))
+        starts, ends, values = blocks_where(fc_values, comparison)
 
         n_events = len(starts)
         if n_events == 0:
