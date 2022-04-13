@@ -2,6 +2,8 @@ import numpy as np
 from .. import utils
 from tqdm import tqdm
 from ._process_events import *
+import xarray as xr
+from ._utils import *
 
 
 def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=10):
@@ -88,6 +90,9 @@ def find_dynssw(
 
 
 def find_nam1000(nam1000, extr_type="", **kwargs):
+    """
+    DEPRECATED
+    """
     var = nam1000  # .squeeze()
     var_stacked = var.stack(fc=["reftime", "hc_year", "number"])
     var_stacked_valid = var_stacked.dropna("fc", how="all")
@@ -112,3 +117,58 @@ def find_nam1000(nam1000, extr_type="", **kwargs):
     event_dict = eventlist_to_dict(events)
 
     return event_dict
+
+
+def threshold_exceedance_in_forecasts(forecasts: xr.DataArray, threshold: float, above=True, event_end_to_nan=True):
+    """
+
+    Parameters
+    ----------
+    forecasts : data with dimensions "reftime", "hc_year", "number", "leadtime"
+    threshold : to define events
+    above : whether to check above or below threshold to define events
+    event_end_to_nan : if True, then whenever event is still ongoing when forecast ends, set event_end and duration to NaN
+
+    Returns
+    -------
+    pd.Dataframe
+    """
+    # check if necessary coordinates exist
+    assert all(c in forecasts.coords for c in ["reftime", "hc_year", "number",
+                                               "leadtime"]), "Forecasts must have dimensions reftime, hc_year, number, leadtime"
+
+    # create events DataFrame
+    events = pd.DataFrame(
+        columns=["reftime", "hc_year", "number", "leadtime_start", "leadtime_end", "duration", "maximum", "minimum"])
+
+    # stack forecasts
+    forecasts_stacked = forecasts.stack(fc=["reftime", "hc_year", "number"]).dropna("fc")
+
+    # iterate forecasts (transpose such that fc has dimension leadtime)
+    for fc in forecasts_stacked.T:
+        fc_values = fc.values
+        # if above use > threshold, else use < threshold
+        comparison = lambda x: x > threshold if above else lambda x: x < threshold
+        # find consecutive elements that fulfill condition: get start indices, end indices, values during exceedance
+        starts, ends, values = blocks_where(fc_values, comparison(fc_values))
+
+        n_events = len(starts)
+        if n_events == 0:
+            continue
+        # extract forecast information
+        reftime, hc_year, number = fc.fc.values.item()
+
+        # append events to the dataframe
+        for i in range(n_events):
+            start = starts[i]
+            end = ends[i]
+            duration = end - start
+            # if forecast ends when event is still ongoing
+            if (end >= len(fc)) & event_end_to_nan:
+                end = np.nan
+                duration = np.nan
+            events = events.append(
+                dict(reftime=reftime, hc_year=hc_year, number=number, leadtime_start=start, leadtime_end=end,
+                     duration=duration,
+                     maximum=values[i].max(), minimum=values[i].min()), ignore_index=True)
+    return events

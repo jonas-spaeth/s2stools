@@ -56,3 +56,50 @@ def fc_dates(reftime=None, hc_year=None, leadtime=None, data=None):
         leadtime = np.array(leadtime)
     dates = utils.add_years(reftime, hc_year) + leadtime
     return dates
+
+
+def blocks_where(data, condition):
+    """
+    Check if condition in 1D numpy array is fulfilled. Return list of event starts, event ends and values during event.
+    Example:
+    a = np.arange(10, 20)
+    blocks_where(a, (a>12) & (a<15))
+    -> [[3]], [[5]], [[13,14]]
+    Parameters
+    ----------
+    data : 1D numpy array, with actual data
+    condition : 1D numpy array, same shape as data, with True and False entries
+
+    Returns
+    -------
+    events_starts_list, events_ends_list, event_data_list
+    """
+
+    # data = np.concatenate([data, [np.nan]])
+    condition = np.concatenate([condition, [False]])
+
+    # Lets say we are looking for a period that data is greater than 2.
+    # First, we indicate all those points
+    indicators = condition.astype(int)  # now we have [0 0 1 1 0 0]
+
+    # We differentiate that so we will have non-zero wherever data > 2.
+    # Note that we concatenate 0 at the beginning.
+    indicators_diff = np.concatenate([[condition[0]], indicators[1:] - indicators[:-1]])
+
+    # Now lets seek for those indices
+    diff_locations = np.where(indicators_diff != 0)[0]
+
+    # We are resulting in all places that the derivative is non-zero.
+    # Those are indices of start and end of events:
+    # [event1_start, event1_end, event2_start, ....]
+    # So we choose by filtering odd/even places of the resulted vector
+    events_starts_list = diff_locations[::2].tolist()
+    events_ends_list = diff_locations[1::2].tolist()
+
+    # And now we can also gather the events data by iterating the events.
+    event_data_list = []
+
+    for event_start, event_end in zip(events_starts_list, events_ends_list):
+        event_data_list.append(data[event_start:event_end])
+
+    return events_starts_list, events_ends_list, event_data_list
