@@ -6,9 +6,9 @@ E.g., ECWMF produces hindcasts on the fly. s2stools can make the data handling e
 
 <details><summary>Installation</summary>
 
-```pip install s2stools==0.0.18```
+```pip install s2stools```
 
-Using the most current version (0.0.21) sometimes fails due to a circular import. This will be fixed in the near future.
+This should install version 0.0.18, because the most current version (0.0.21) sometimes fails due to a circular import. This will be fixed in the near future.
 </details>
 
 # Specific Features
