@@ -58,7 +58,8 @@ def zonal_wavenumber_decomposition(data, k_aggregates=True):
     for new_k_name, k_range in k_aggregates.items():
         vt_fft_sel = data_fft.sel(k=k_range)
         if "k" in vt_fft_sel.dims:
-            vt_fft_sel = vt_fft_sel.sum("k")
+            # min_count=1 is important, because sum over NaN otherwise yields 0, which must be avoided, especially when computing anomalies
+            vt_fft_sel = vt_fft_sel.sum("k", min_count=1)
         to_merge.append(vt_fft_sel.expand_dims("k").assign_coords(k=[new_k_name]))
     data_fft_aggr_k = xr.concat(to_merge, dim="k")
 
