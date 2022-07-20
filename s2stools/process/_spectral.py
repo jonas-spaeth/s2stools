@@ -4,6 +4,16 @@ import dask.array
 
 
 def zonal_wavenumber_decomposition(data, k_aggregates=True):
+    """
+    Decompose data into zonal wavenumber components (k0=mean, k1=amplitude of lowest frequency). Applies a fft along 'longitude' and introduces dimension k.
+    Args:
+        data: (xr.DataArray | xr.Dataset) Data for wavenumber decomposition.
+        k_aggregates: (boolean | dict) If True, dimension k has coordinates '0', '1', '2', '3', '4-7', '8-20', '21-inf' where k-ranges contain the sum over these wavenumbers. If False, return full wavenumber components and k will have integer values as coordinate. If dict, apply a custom k_aggregate of the form {0: '0', slice(1-3): '1to3', ...}. Defaults to True.
+
+    Returns:
+        xr.DataArray | xr.Dataset
+    """
+
     assert 'longitude' in data.dims, f'longitude not in dimensions {data.dims}'
     assert isinstance(data.data, dask.array.Array), f'data needs to be chunked (but data is of type {type(data)})'
 

@@ -43,10 +43,13 @@ class TestProcess(TestCase):
 
         # data.plot()
         # plt.show()
+
         data_k = process.zonal_wavenumber_decomposition(data.chunk(chunks=dict(latitude=nlat)))
+
         #        data_k.plot(hue='k', marker='o')
         #        plt.grid()
         #        plt.show()
+
         # check if amplitudes can be recovered
         self.assertAlmostEqual(data_k.sel(k='0').max().values, np.abs(mean))
         self.assertAlmostEqual(data_k.sel(k='1').max().values, 1)
