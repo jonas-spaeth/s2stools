@@ -18,10 +18,17 @@ def composite_from_eventlist(event_list, data):
                 hc_year=event["fc"]["hc_year"],
                 number=event["fc"]["number"],
             )
+            # old
+            #event_comp.append(
+            #    forecast.assign_coords(
+            #        leadtime=data.leadtime - central_day
+            #    ).rename(leadtime="lagtime")
+            #)
+            # new
             event_comp.append(
                 forecast.assign_coords(
                     leadtime=data.leadtime - central_day
-                ).rename(leadtime="lagtime")
+                ).rename(leadtime="lagtime").assign_coords(leadtime=central_day)
             )
         elif event["fc"]["reftime"] in missing_reftime_keys:
             continue

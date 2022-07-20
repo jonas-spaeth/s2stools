@@ -20,20 +20,35 @@ class EventComposite:
     plot_colors = {"primary": "darkslategray"}
 
     # init
-    def __init__(self, data, event_jsons_path, descr, model, plot_colors=None):
+    def __init__(self, data, events, descr, model, plot_colors=None):
+        """
+
+        Parameters
+        ----------
+        data : xr.Dataset
+            dataset with appropriate dimensions (reftime, leadtime, hc_year, number, ...)
+        events : (str or list)
+            if str, then define the path, e.g., 'json/s2s_events/MODEL/ssw/*' (model will automatically relpaced by self.model); if list then of format [{"fc": {"reftime": None, "hc_year": None, "number": None}, "days_since_init": None}, {...}]
+        descr : str
+            event description, e.g., used for plot titles
+        model : str
+            model name, e.g., ecmwf or ukmo
+        plot_colors : dict
+            {'primary': 'blue', 'secondary': 'red'}
+        """
         if plot_colors:
             self.plot_colors = self.plot_colors | plot_colors
         self.descr = descr
         self.model = model
         # events from json
-        if isinstance(event_jsons_path, str):
+        if isinstance(events, str):
             # assert that event_jsons_path describes a path
             self.event_list_json = eventlist_from_json(
-                event_jsons_path.replace("MODEL", model)
+                events.replace("MODEL", model)
             )
-        elif isinstance(event_jsons_path, list):
+        elif isinstance(events, list):
             # assert event_jsons_path is the list of events
-            self.event_list_json = event_jsons_path
+            self.event_list_json = events
         else:
             raise TypeError
         # assert that data has key leadtime, not days_since_init
@@ -49,6 +64,7 @@ class EventComposite:
     # plot functions
 
     def plot_composite(self, title_event_name="S2S events", save=False, save_descr=""):
+        raise NotImplementedError("Poorly tested, refer to s2sutils.plot.composite_overview() instead.")
         data_comp = self.comp
         n_contr_events = n_events_by_lagtime(self.comp)
 
@@ -142,6 +158,7 @@ class EventComposite:
         return fig, np.append(ax, ax0_2)
 
     def plot_percentiles(self, save=False, save_kw=""):
+        raise NotImplementedError("Poorly tested.")
         statistics = data_statistics(self.comp)
         quantiles = data_percentiles(self.comp)
 
@@ -220,7 +237,6 @@ class EventComposite:
         return fig, ax
 
     def plot_eventinfo(self, save=True, save_kw=""):
-
         event_dates = event_dates_from_ds(
             self.comp, model=self.model
         ).rename("all")
@@ -403,6 +419,7 @@ class EventComposite:
             save_kw="",
             title_event_name="S2S events",
     ):
+        raise NotImplementedError("Poorly tested.")
 
         extreme_probability = extreme_predictors(self.comp)
         dse = self.comp.lagtime.values
@@ -545,7 +562,7 @@ class EventComposite:
         Returns:
             (plt.figure, plt.axis): fig, ax of plot
         """
-
+        raise NotImplementedError("Poorly tested.")
         ### COMPUTATION
 
         # compute own climatology: mean and uncertainty

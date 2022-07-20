@@ -56,7 +56,7 @@ class TestEvents(TestCase):
         # find events
         event_list = events.find_ssw(u60_10hPa_proxy, buffer_start=0, buffer_end=0, require_westwind_start=1)
         # create EventComposite
-        ec = events.EventComposite(data=ds, event_jsons_path=event_list, descr="SSW", model="ecmwf")
+        ec = events.EventComposite(data=ds, events=event_list, descr="SSW", model="ecmwf")
         self.assertIsInstance(ec, events.EventComposite)
         # plot
         # plot.composite_overview(ec.comp.sel(latitude=60).mean("longitude"))

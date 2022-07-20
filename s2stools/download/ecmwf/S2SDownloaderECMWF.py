@@ -42,7 +42,8 @@ class S2SDownloaderECMWF(S2SDownloader):
             **kwargs (): Additional request keywords.
         """
         self.request["param"] = utils.list_to_string(list(param))
-        self.request["levelist"] = utils.list_to_string(list(plevs))
+        if plevs is not None:
+            self.request["levelist"] = utils.list_to_string(list(plevs))
         if area is not None:
             self.request["area"] = area
 
