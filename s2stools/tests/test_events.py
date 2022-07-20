@@ -26,7 +26,7 @@ class TestEvents(TestCase):
 
     def test_composite_from_json(self):
         ds = process.open_files(path_pattern="../../data/s2s_ecmwf_uv_20*")
-        comp = events.composite_from_json("../../data/events/ssw/*.json", ds)
+        comp = events.composite_from_json("../data/events/ssw/pseudossw*.json", ds)
         self.assertIn("i", list(comp.dims))
 
     def test_rename_eventlist_key(self):

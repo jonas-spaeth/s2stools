@@ -1,3 +1,5 @@
+import glob
+import tempfile
 from unittest import TestCase
 
 import numpy as np
@@ -12,7 +14,7 @@ class TestProcess(TestCase):
 
     def test_open_files(self):
         directory = "../../data/"
-        ds = process.open_files(path_pattern=directory + "s2s_ecmwf_uv_20*", max_lt=1)
+        ds = process.open_files(path_pattern=directory + "s2s_ecmwf_uv_20*")
         self.assertIsInstance(ds, xr.Dataset)
 
     def test_add_validtime(self):
@@ -55,3 +57,15 @@ class TestProcess(TestCase):
         self.assertAlmostEqual(data_k.sel(k='1').max().values, 1)
         self.assertAlmostEqual(data_k.sel(k='2').max().values, 2)
         self.assertAlmostEqual(data_k.sel(k='4-7').max().values, 4 + 5)
+
+    def test_save_one_file_per_reftime(self):
+        directory = "../../data/"
+        ds = process.open_files(path_pattern=directory + "s2s_ecmwf_uv_20*").isel(longitude=0, latitude=0)
+        ds = ds.load()
+        with tempfile.TemporaryDirectory() as dirpath:
+            # temporary directory to save files
+            process.save_one_file_per_reftime(ds, f"{dirpath}/testfile")
+            directory = f'{dirpath}/testfile*'
+            loaded = xr.open_mfdataset(directory)
+            self.assertIsInstance(loaded, xr.Dataset)
+            self.assertEqual(len(glob.glob(directory)), len(ds.reftime))
