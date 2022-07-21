@@ -1,14 +1,29 @@
 .. s2stools documentation master file, created by
-   sphinx-quickstart on Wed Jul 20 15:15:53 2022.
+   sphinx-quickstart on Thu Jul 21 11:11:47 2022.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
 Welcome to s2stools's documentation!
 ====================================
 
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-module-template.rst
+   :recursive:
+
+   s2stools.clim
+   s2stools.events
+   s2stools.download
+   s2stools.process
+   s2stools.utils
+   s2stools.plot
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: Contents:
+
+
 
 
 
