@@ -20,7 +20,7 @@ Welcome to s2stools's documentation!
    s2stools.plot
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 5
    :caption: Contents:
 
 
