@@ -25,7 +25,7 @@ def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=1
             .fc
     )
 
-    print("\t forecasts start start with 10 days westwind: ", len(fc_startwest))
+    print(f"\t forecasts start start with {require_westwind_start} days westwind: {len(fc_startwest)}")
 
     events = []
     for fc in tqdm(fc_startwest[:], desc="Scanning Forecasts for Events"):
