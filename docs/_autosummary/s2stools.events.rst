@@ -1,4 +1,4 @@
-﻿s2stools.events
+s2stools.events
 ===============
 
 .. automodule:: s2stools.events

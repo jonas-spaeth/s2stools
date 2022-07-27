@@ -1,4 +1,4 @@
-﻿s2stools.plot
+s2stools.plot
 =============
 
 .. automodule:: s2stools.plot

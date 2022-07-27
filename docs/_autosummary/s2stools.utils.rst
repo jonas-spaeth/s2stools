@@ -1,4 +1,4 @@
-﻿s2stools.utils
+s2stools.utils
 ==============
 
 .. automodule:: s2stools.utils

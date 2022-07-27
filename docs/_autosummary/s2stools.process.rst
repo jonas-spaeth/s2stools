@@ -1,4 +1,4 @@
-﻿s2stools.process
+s2stools.process
 ================
 
 .. automodule:: s2stools.process

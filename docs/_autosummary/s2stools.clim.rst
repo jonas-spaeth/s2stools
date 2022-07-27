@@ -1,4 +1,4 @@
-﻿s2stools.clim
+s2stools.clim
 =============
 
 .. automodule:: s2stools.clim
