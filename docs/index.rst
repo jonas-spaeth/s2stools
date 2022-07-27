@@ -9,13 +9,13 @@ Welcome to s2stools's documentation!
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-module-template.rst
    :recursive:
 
    s2stools.clim
    s2stools.events
    s2stools.process
    s2stools.utils
+   s2stools.plot
 
 .. toctree::
    :maxdepth: 5

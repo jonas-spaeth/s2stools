@@ -2,7 +2,7 @@
 ===============
 
 .. automodule:: s2stools.events
-  
+
    
    
    
@@ -12,7 +12,6 @@
    .. rubric:: Functions
 
    .. autosummary::
-      :toctree:                                          <-- add this line
    
       all_events_but_listed
       annotate_bars
@@ -55,8 +54,6 @@
    .. rubric:: Classes
 
    .. autosummary::
-      :toctree:                                          <-- add this line
-      :template: custom-class-template.rst               <-- add this line
    
       EventComposite
       Path
@@ -75,7 +72,6 @@
 
 .. autosummary::
    :toctree:
-   :template: custom-module-template.rst                 <-- add this line
    :recursive:
 
    s2stools.events.EventComposite
