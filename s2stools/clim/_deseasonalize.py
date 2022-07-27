@@ -12,6 +12,43 @@ def deseasonalize(
         hide_warnings=False,
         return_clim_lists=False,
 ):
+    """
+    Compute anomalies from the climatological mean. Deseasonalization is based on hindcasts.
+
+    Parameters
+    ----------
+    data : xr.Dataset or xr.DataArray
+        The raw data.
+    window_size : int
+        The mean is constructed using all reftimes within this plus-minus-day-interval.
+    standardize : boolean
+        If True, compute standardized anomalies.
+    ndays_clim_filter : int
+        Apply running mean to the climatology.
+    hide_print : boolean
+        If False, print how many reftimes are used for each climatology. Defaults to True.
+    hide_plot : boolean
+        If False, plot the climatology.
+    hide_warnings : boolean
+        ???
+    return_clim_lists : boolean
+        If True, also return the constructed climatologies. If False, only return anomalies.
+
+    Returns
+    -------
+    xr.Dataset or xr.DataArray
+        Anomalies If return_clim_lists=True, return tuple anom, clim_list, climstd_list.
+
+    Warnings
+    --------
+    If reftimes +- time window are not available then anomalies are still computed, but climatology is less robust.
+
+    Notes
+    -----
+    There my be use cases where only one reftime and no running mean should be used, e.g., for computing anomalies of
+    forecast variance.
+
+    """
     data_by_reftime_list = []
     clim_list = []
     climstd_list = []

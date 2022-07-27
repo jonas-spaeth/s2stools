@@ -6,12 +6,20 @@ import dask.array
 def zonal_wavenumber_decomposition(data, k_aggregates=True):
     """
     Decompose data into zonal wavenumber components (k0=mean, k1=amplitude of lowest frequency). Applies a fft along 'longitude' and introduces dimension k.
-    Args:
-        data: (xr.DataArray | xr.Dataset) Data for wavenumber decomposition.
-        k_aggregates: (boolean | dict) If True, dimension k has coordinates '0', '1', '2', '3', '4-7', '8-20', '21-inf' where k-ranges contain the sum over these wavenumbers. If False, return full wavenumber components and k will have integer values as coordinate. If dict, apply a custom k_aggregate of the form {0: '0', slice(1-3): '1to3', ...}. Defaults to True.
 
-    Returns:
-        xr.DataArray | xr.Dataset
+    Parameters
+    ----------
+        data: xr.DataArray or xr.Dataset
+            Data for wavenumber decomposition.
+        k_aggregates: boolean or dict
+            If True, dimension k has coordinates '0', '1', '2', '3', '4-7', '8-20', '21-inf' where k-ranges
+            contain the sum over these wavenumbers. If False, return full wavenumber components and k will
+            have integer values as coordinate.
+            If dict, apply a custom k_aggregate of the form {0: '0', slice(1-3): '1to3', ...}. Defaults to True.
+
+    Returns
+    -------
+        xr.DataArray or xr.Dataset
     """
 
     assert 'longitude' in data.dims, f'longitude not in dimensions {data.dims}'
@@ -51,16 +59,33 @@ def zonal_wavenumber_decomposition(data, k_aggregates=True):
         else:
             return data_fft
     else:
-        assert isinstance(k_aggregates, dict), f"unsupported type for k_aggregates (needs to be one of (bool, dict), not {type(k_aggregates)})"
+        assert isinstance(k_aggregates,
+                          dict), f"unsupported type for k_aggregates (needs to be one of (bool, dict), not {type(k_aggregates)})"
 
     # k aggregation
-    to_merge = []
-    for new_k_name, k_range in k_aggregates.items():
-        vt_fft_sel = data_fft.sel(k=k_range)
-        if "k" in vt_fft_sel.dims:
-            # min_count=1 is important, because sum over NaN otherwise yields 0, which must be avoided, especially when computing anomalies
-            vt_fft_sel = vt_fft_sel.sum("k", min_count=1)
-        to_merge.append(vt_fft_sel.expand_dims("k").assign_coords(k=[new_k_name]))
-    data_fft_aggr_k = xr.concat(to_merge, dim="k")
+    return aggregate_k(data_fft, k_aggregates)
 
-    return data_fft_aggr_k
+
+def aggregate_k(data, rule=None):
+    """
+    Aggregate certain k's to a wavenumber range, corresponding to the sum.
+    Parameters
+    ----------
+    data : xr.Dataset or xr.DataArray
+    rule : dict
+        If None, use default aggregation: 0, 1, 2, 3, 4-7, 8-20, 21-inf.
+    Returns
+    -------
+    xr.Dataset or xr.DataArray
+    """
+    assert 'k' in data.dims, f"'k' is not one of the dimensions in data: {data.dims}"
+    to_merge = []
+    for new_k_name, k_range in rule.items():
+        data_sel = data.sel(k=k_range)
+        if "k" in data_sel.dims:
+            # min_count=1 is important, because sum over NaN otherwise yields 0, which must be avoided, especially when computing anomalies
+            vt_fft_sel = data_sel.sum("k", min_count=1)
+        to_merge.append(data_sel.expand_dims("k").assign_coords(k=[new_k_name]))
+    data_aggr_k = xr.concat(to_merge, dim="k")
+
+    return data_aggr_k
