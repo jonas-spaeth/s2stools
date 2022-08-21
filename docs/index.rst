@@ -3,8 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to s2stools's documentation!
+Documentation of s2stools
 ====================================
+
 
 
 .. autosummary::
@@ -29,9 +30,12 @@ Welcome to s2stools's documentation!
    s2stools.clim.deseasonalize
 
 
+
 .. toctree::
    :maxdepth: 5
    :caption: Contents:
+
+   README.md
 
 
 
@@ -41,3 +45,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+
