@@ -13,7 +13,7 @@ Welcome to s2stools's documentation!
 
    s2stools
    s2stools.clim.deseasonalize
-
+   s2stools.events.find_ssw
 
 .. toctree::
    :maxdepth: 5
