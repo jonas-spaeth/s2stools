@@ -17,7 +17,6 @@
       aggregate_k
       open_files
       save_one_file_per_reftime
-      test
       zonal_wavenumber_decomposition
    
    
