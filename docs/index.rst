@@ -15,6 +15,7 @@ Welcome to s2stools's documentation!
    s2stools.process.save_one_file_per_reftime
    s2stools.process
    s2stools.process.add_validtime
+   s2stools.process.blocks_where
    s2stools.process.zonal_wavenumber_decomposition
    s2stools.process.open_files
    s2stools.plot.xaxis_unit_days
