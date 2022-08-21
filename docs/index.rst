@@ -14,6 +14,8 @@ Welcome to s2stools's documentation!
    s2stools
    s2stools.clim.deseasonalize
    s2stools.events.find_ssw
+   s2stools.plot.xaxis_unit_days
+
 
 .. toctree::
    :maxdepth: 5
