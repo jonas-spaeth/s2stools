@@ -12,6 +12,7 @@ Welcome to s2stools's documentation!
    :recursive:
 
    s2stools
+   s2stools.clim.deseasonalize
 
 .. toctree::
    :maxdepth: 5
