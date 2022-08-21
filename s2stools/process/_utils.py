@@ -17,9 +17,27 @@ def stack_ensfc(d, reset_index=True):
 
 
 def mode(obj, dim):
-    # note: apply always moves core dimensions to the end
-    # usually axis is simply -1 but scipy's mode function doesn't seem to like that
-    # this means that this version will only work for DataArray's (not Datasets)
+    """
+    Compute mode along dimension.
+
+    Parameters
+    ----------
+    obj : xr.Dataset or xr.DataArray
+        Data.
+    dim : str
+        Dimension.
+
+    Returns
+    -------
+    xr.Dataset or xr.DataArray
+
+    Notes
+    -----
+    apply always moves core dimensions to the end;
+    usually axis is simply -1 but scipy's mode function doesn't seem to like that;
+    this means that this version will only work for DataArray's (not Datasets)
+
+    """
     assert isinstance(obj, xr.DataArray)
     axis = obj.ndim - 1
     return xr.apply_ufunc(_mode, obj,input_core_dims=[[dim]],kwargs={'axis': axis})

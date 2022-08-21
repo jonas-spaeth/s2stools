@@ -6,12 +6,14 @@ from dask.diagnostics import ProgressBar
 def save_one_file_per_reftime(data: xr.Dataset, path: str):
     """
     Save S2S Dataset with one file per reftime.
-    Args:
-        data: (xr.Dataset)
-        path: (str) target path including filename. _REFTIME.nc will be added. E.g.: /home/foo/s2s_somefilename
 
-    Returns:
-        void
+    Parameters
+    ----------
+        data: xr.Dataset
+            Dataset to save.
+        path: str
+            target path including filename. _REFTIME.nc will be added. E.g.: /home/foo/s2s_somefilename
+
     """
     reftimes, datasets = zip(*data.groupby("reftime"))
     datasets = [d.expand_dims("reftime") for d in datasets]

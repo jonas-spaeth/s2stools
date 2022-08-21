@@ -17,18 +17,27 @@ def deseasonalize(
 
     Parameters
     ----------
-    data : (xr.Dataset or xr.DataArray) The raw data.
-    window_size : (int) The mean is constructed using all reftimes within this plus-minus-day-interval.
-    standardize : (boolean) If True, compute standardized anomalies.
-    ndays_clim_filter : (int) Apply running mean to the climatology.
-    hide_print : (boolean) If False, print how many reftimes are used for each climatology. Defaults to True.
-    hide_plot : (boolean) If False, plot the climatology.
-    hide_warnings : (boolean) ???
-    return_clim_lists : (boolean) If True, also return the constructed climatologies. If False, only return anomalies.
+    data : xr.Dataset or xr.DataArray
+        The raw data.
+    window_size : int
+        The mean is constructed using all reftimes within this plus-minus-day-interval.
+    standardize : boolean
+        If True, compute standardized anomalies.
+    ndays_clim_filter : int
+        Apply running mean to the climatology.
+    hide_print : boolean
+        If False, print how many reftimes are used for each climatology. Defaults to True.
+    hide_plot : boolean
+        If False, plot the climatology.
+    hide_warnings : boolean
+        ???
+    return_clim_lists : boolean
+        If True, also return the constructed climatologies. If False, only return anomalies.
 
     Returns
     -------
-    Anomalies (xr.Dataset or xr.DataArray). If return_clim_lists=True, return tuple anom, clim_list, climstd_list.
+    xr.Dataset or xr.DataArray
+        Anomalies If return_clim_lists=True, return tuple anom, clim_list, climstd_list.
 
     Warnings
     --------

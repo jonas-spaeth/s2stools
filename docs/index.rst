@@ -12,7 +12,20 @@ Welcome to s2stools's documentation!
    :recursive:
 
    s2stools
+
    s2stools.clim.deseasonalize
+
+   s2stools.process.open_files
+   s2stools.process.save_one_file_per_reftime
+   s2stools.process.zonal_wavenumber_decomposition
+   s2stools.process.mode
+   s2stools.process.add_validtime
+
+   s2stools.plot.xaxis_unit_days
+   s2stools.plot.symmetric_ylim
+   s2stools.plot.symmetric_ylim
+
+   s2stools.events.find_ssw
 
 .. toctree::
    :maxdepth: 5

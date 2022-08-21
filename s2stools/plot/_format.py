@@ -4,6 +4,19 @@ import matplotlib.ticker
 
 
 def xaxis_unit_days(ax, multiple=7, minor_multiple=1):
+    """
+    Convert nanoseconds on x-axis to days.
+
+    Parameters
+    ----------
+    ax : plt.Axis
+        Axis.
+    multiple : int
+        Defaults to every 7 days.
+    minor_multiple : int
+        Defaults to every 1 days.
+
+    """
     # Function that formats the axis labels
     def timeTicks(x, pos):
         seconds = x / 10 ** 9  # convert nanoseconds to seconds
