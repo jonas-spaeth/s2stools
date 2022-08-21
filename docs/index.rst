@@ -13,6 +13,7 @@ Welcome to s2stools's documentation!
 
    s2stools
    s2stools.process.save_one_file_per_reftime
+   s2stools.process
    s2stools.process.add_validtime
    s2stools.process.zonal_wavenumber_decomposition
    s2stools.process.open_files
