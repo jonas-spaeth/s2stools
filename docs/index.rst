@@ -16,7 +16,7 @@ Welcome to s2stools's documentation!
    s2stools.events.find_ssw
    s2stools.plot.xaxis_unit_days
    s2stools.plot.symmetric_ylim
-   s2stools.process.mode
+   s2stools.process.open_files
 
 
 
