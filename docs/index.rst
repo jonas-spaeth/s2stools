@@ -33,7 +33,7 @@ Documentation of s2stools
 
 .. toctree::
    :maxdepth: 5
-   :caption: Contents:
+   :caption: Overview:
 
    README.md
 
