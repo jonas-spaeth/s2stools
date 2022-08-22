@@ -15,7 +15,7 @@ def dataset_ensure_leadtime_key(dataset):
     if "leadtime" in coords:
         return dataset
     elif "days_since_init" in coords:
-        print("Warning: .data will have coordinate 'leadtime', not 'days_since_init'.")
+        print("Warning: .data will have coordinate 'leadtime', not 'days_since_init'. Hope that's okay?")
         return dataset.assign_coords(
             days_since_init=pd.TimedeltaIndex(dataset.days_since_init.values, "D")
         ).rename(days_since_init="leadtime")

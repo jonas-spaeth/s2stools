@@ -1,4 +1,4 @@
-from tqdm import tqdm
+from tqdm.autonotebook import tqdm
 import numpy as np
 import pandas as pd
 import xarray as xr
