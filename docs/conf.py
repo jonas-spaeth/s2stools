@@ -14,6 +14,7 @@ import os
 import sys
 # sys.path.insert(0, os.path.abspath('../s2stools'))
 sys.path.insert(0, os.path.abspath('..'))
+import sphinx_github_changelog
 
 # -- Project information -----------------------------------------------------
 
