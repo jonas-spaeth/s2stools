@@ -38,13 +38,6 @@ Documentation of s2stools
    README.md
 
 
-
-.. changelog::
-    :changelog-url: https://s2stools.readthedocs.io/en/stable/#changelog
-    :github: https://github.com/jonas-spaeth/s2stools/releases/
-    :pypi: https://pypi.org/project/s2stools/
-
-
 Indices and tables
 ==================
 

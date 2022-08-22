@@ -14,6 +14,7 @@ import os
 import sys
 # sys.path.insert(0, os.path.abspath('../s2stools'))
 sys.path.insert(0, os.path.abspath('..'))
+import sphinx_github_changelog
 
 # -- Project information -----------------------------------------------------
 
@@ -34,12 +35,7 @@ extensions = [
 	'sphinx.ext.napoleon',
 	'sphinx.ext.autosummary',
     'recommonmark',
-    'sphinx_github_changelog'
 ]
-
-#sphinx_github_changelog_token = os.getenv("SPHINX_GITHUB_CHANGELOG_TOKEN")
-sphinx_github_changelog_token = "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"
-
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 autosummary_imported_members = True  # try this later
