@@ -35,11 +35,7 @@ extensions = [
 	'sphinx.ext.napoleon',
 	'sphinx.ext.autosummary',
     'recommonmark',
-    'sphinx_github_changelog'
 ]
-
-sphinx_github_changelog_token = os.getenv("SPHINX_GITHUB_CHANGELOG_TOKEN")
-
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 autosummary_imported_members = True  # try this later
