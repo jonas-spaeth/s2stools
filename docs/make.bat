@@ -10,6 +10,8 @@ if "%SPHINXBUILD%" == "" (
 set SOURCEDIR=.
 set BUILDDIR=_build
 
+set SPHINX_GITHUB_CHANGELOG_TOKEN=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
+
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
 	echo.
