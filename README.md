@@ -7,8 +7,6 @@ E.g., ECWMF produces hindcasts on the fly. s2stools can make the data handling e
 <details><summary>Installation</summary>
 
 ```pip install s2stools```
-
-This should install version 0.0.18, because the most current version (0.0.21) sometimes fails due to a circular import. This will be fixed in the near future.
 </details>
 
 # Specific Features
@@ -32,7 +30,7 @@ Raw ECMWF S2S forecasts come with dimension *time*. Opening files with `s2stools
 
 ## Computing Climatology and Anomalies
 
-`s2stools.clim.deseasonalize(standardize=True)` can be used to compute anomalies following Spaeth and Birner Appendix 1 (under revision, https://doi.org/10.5194/wcd-2021-77).
+`s2stools.clim.deseasonalize(standardize=True)` can be used to compute anomalies following [Spaeth and Birner (2022)](https://wcd.copernicus.org/articles/3/883/2022/#&gid=1&pid=1), Appendix A (Weather Clim. Dynam., 3, 883–903, 2022, https://doi.org/10.5194/wcd-2021-77).
 
 ## Event Composites
 
@@ -52,6 +50,6 @@ yes, please
 
 
 
-** contact: **
+**contact:**
 
 jonas.spaeth@physik.uni-muenchen.de
