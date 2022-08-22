@@ -7,16 +7,28 @@ import pandas as pd
 
 def open_files(cf=None, pf=None, chc=None, phc=None, path_pattern=None):
     """
-    TODO: Can we autodetect max_lt?
-    TODO: Compare to process_s2s_ukmo – possible to generalize?
-    Args:
-        cf ():
-        pf ():
-        chc ():
-        phc ():
-        path_pattern ():
+    Open S2S Files and create dimensions reftime and hc_year.
 
-    Returns:
+    Parameters
+    ----------
+    cf : str
+        Ending of control forecast files.
+    pf : str
+        Ending of perturbed forecast files.
+    chc : str
+        Ending of control hindcast files.
+    phc : str
+        Ending of perturbed hindcast files.
+    path_pattern : str
+        Path using glob notaation
+
+    Returns
+    -------
+    xr.Dataset
+
+    Notes
+    -----
+    In the near future a new function will enable opening files with 'xr.open_mfdataset' and a preprocess function.
 
     """
     if path_pattern:

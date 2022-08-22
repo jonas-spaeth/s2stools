@@ -1,4 +1,4 @@
-s2stools.events.ssw\_compendium\_event\_dates
+﻿s2stools.events.ssw\_compendium\_event\_dates
 =============================================
 
 .. currentmodule:: s2stools.events

@@ -7,6 +7,28 @@ from ._utils import *
 
 
 def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=10):
+    """
+    Find Sudden Stratospheric Warmings in S2S forecast.
+
+    Parameters
+    ----------
+    u60_10hPa : xr.DataArray
+        zonal wind at 60N 10hPa, requires dimensions `reftime`, `hc_year`, `number`
+    buffer_start : int
+        When are events allowed to happen the earliest?
+    buffer_end : int
+        When are events allowed to happen the latest?
+    require_westwind_start : int
+        How many days should u60 start positive?
+
+    Returns
+    -------
+    list
+
+    See Also
+    --------
+    `s2stools.events.composite_from_eventlist`
+    """
     buffer_start, buffer_end, require_westwind_start = map(utils.to_timedelta64,
                                                            [buffer_start, buffer_end, require_westwind_start])
 
@@ -25,7 +47,7 @@ def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=1
             .fc
     )
 
-    print("\t forecasts start start with 10 days westwind: ", len(fc_startwest))
+    print(f"\t forecasts start start with {require_westwind_start} days westwind: {len(fc_startwest)}")
 
     events = []
     for fc in tqdm(fc_startwest[:], desc="Scanning Forecasts for Events"):

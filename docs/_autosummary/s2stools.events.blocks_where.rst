@@ -1,6 +1,6 @@
-s2stools.events.find\_nam1000
+﻿s2stools.events.blocks\_where
 =============================
 
 .. currentmodule:: s2stools.events
 
-.. autofunction:: find_nam1000
+.. autofunction:: blocks_where

@@ -24,6 +24,11 @@ def add_validtime(da):
     Warnings
     _______
     Only dimension `leadtime` is supported, not `days_since_init`.
+
+
+    Warnings
+    _______
+    Only makes sense for ECMWF data.
     """
     da_stacked = da.stack(day=("reftime", "hc_year", "leadtime"))
     fc_day = (

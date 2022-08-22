@@ -1,27 +1,41 @@
 .. s2stools documentation master file, created by
-   sphinx-quickstart on Thu Jul 21 11:11:47 2022.
+   sphinx-quickstart on Wed Jul 27 09:35:31 2022.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to s2stools's documentation!
+Documentation of s2stools
 ====================================
+
 
 
 .. autosummary::
    :toctree: _autosummary
-   :template: custom-module-template.rst
    :recursive:
 
-   s2stools.clim
-   s2stools.events
+   s2stools
    s2stools.process
-   s2stools.utils
+   s2stools.process.save_one_file_per_reftime
+   s2stools.process.add_validtime
+   s2stools.process.blocks_where
+   s2stools.process.zonal_wavenumber_decomposition
+   s2stools.process.open_files
+   s2stools.plot
+   s2stools.plot.xaxis_unit_days
+   s2stools.plot.symmetric_ylim
+   s2stools.events
+   s2stools.events.find_ssw
+   s2stools.events.ssw_compendium_event_dates
+   s2stools.events.blocks_where
+   s2stools.clim
+   s2stools.clim.deseasonalize
+
+
 
 .. toctree::
    :maxdepth: 5
-   :caption: Contents:
+   :caption: Overview:
 
-
+   README.md
 
 
 
@@ -31,3 +45,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+

@@ -9,12 +9,17 @@ def zonal_wavenumber_decomposition(data, k_aggregates=True):
 
     Parameters
     ----------
-        data: (xr.DataArray | xr.Dataset) Data for wavenumber decomposition.
-        k_aggregates: (boolean | dict) If True, dimension k has coordinates '0', '1', '2', '3', '4-7', '8-20', '21-inf' where k-ranges contain the sum over these wavenumbers. If False, return full wavenumber components and k will have integer values as coordinate. If dict, apply a custom k_aggregate of the form {0: '0', slice(1-3): '1to3', ...}. Defaults to True.
+        data: xr.DataArray or xr.Dataset
+            Data for wavenumber decomposition.
+        k_aggregates: boolean or dict
+            If True, dimension k has coordinates '0', '1', '2', '3', '4-7', '8-20', '21-inf' where k-ranges
+            contain the sum over these wavenumbers. If False, return full wavenumber components and k will
+            have integer values as coordinate.
+            If dict, apply a custom k_aggregate of the form {0: '0', slice(1-3): '1to3', ...}. Defaults to True.
 
     Returns
     -------
-        xr.Dataset
+        xr.DataArray or xr.Dataset
 
     Warnings
     --------

@@ -12,6 +12,7 @@ import calendar
 
 
 class EventComposite:
+
     # attributes
     data = None
     comp = None

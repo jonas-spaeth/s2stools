@@ -12,8 +12,8 @@
 #
 import os
 import sys
-# sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../s2stools'))
+# sys.path.insert(0, os.path.abspath('../s2stools'))
+sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
@@ -27,12 +27,15 @@ author = 'Jonas Spaeth'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
 extensions = [
 	'sphinx.ext.autodoc',
 	'sphinx.ext.coverage',
 	'sphinx.ext.napoleon',
-	'sphinx.ext.autosummary'
+	'sphinx.ext.autosummary',
+    'recommonmark'
 ]
+
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 autosummary_imported_members = True  # try this later
@@ -54,6 +57,7 @@ autodoc_default_options = {
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
