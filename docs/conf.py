@@ -37,8 +37,7 @@ extensions = [
     'sphinx_github_changelog'
 ]
 
-#sphinx_github_changelog_token = os.getenv("SPHINX_GITHUB_CHANGELOG_TOKEN")
-sphinx_github_changelog_token = "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"
+sphinx_github_changelog_token = os.getenv("SPHINX_GITHUB_CHANGELOG_TOKEN")
 
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
