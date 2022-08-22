@@ -43,20 +43,31 @@ class TestProcess(TestCase):
         # create a sample data with zonal wavestructures and latitudinal scaling from 0 to 1
         data = xr.DataArray(mean + np.outer(k1 + k2 + k4 + k5, np.linspace(0, 1, nlat)), coords={'longitude': lons, 'latitude': lats}, dims=['longitude', 'latitude'])
 
-        # data.plot()
-        # plt.show()
+        data.plot(hue='latitude')
+        plt.show()
 
         data_k = process.zonal_wavenumber_decomposition(data.chunk(chunks=dict(latitude=nlat)))
 
-        #        data_k.plot(hue='k', marker='o')
-        #        plt.grid()
-        #        plt.show()
+        amplitude = np.abs(data_k.where(data_k.k == '0', other=2 * data_k))
+        amplitude.plot(hue='k', marker='o')
+        plt.grid()
+        plt.show()
 
         # check if amplitudes can be recovered
-        self.assertAlmostEqual(data_k.sel(k='0').max().values, np.abs(mean))
-        self.assertAlmostEqual(data_k.sel(k='1').max().values, 1)
-        self.assertAlmostEqual(data_k.sel(k='2').max().values, 2)
-        self.assertAlmostEqual(data_k.sel(k='4-7').max().values, 4 + 5)
+        self.assertAlmostEqual(amplitude.sel(k='0').max().values, np.abs(mean))
+        self.assertAlmostEqual(amplitude.sel(k='1').max().values, 1)
+        self.assertAlmostEqual(amplitude.sel(k='2').max().values, 2)
+        self.assertAlmostEqual(amplitude.sel(k='4-7').max().values, 4 + 5)
+
+    def test_eddy_flux_spectral(self):
+        a = xr.DataArray(np.random.normal(size=(100, 5)), dims=["longitude", "latitude"])
+        b = xr.DataArray(np.random.normal(size=(100, 5)), dims=["longitude", "latitude"])
+
+        a = a.chunk(chunks=dict(longitude=100, latitude=1))
+        b = b.chunk(chunks=dict(longitude=100, latitude=1))
+        ab_fft = process.eddy_flux_spectral(a, b, verify_that_sum_over_k_is_total_flux=True)
+        print(ab_fft)
+
 
     def test_save_one_file_per_reftime(self):
         directory = "../../data/"
