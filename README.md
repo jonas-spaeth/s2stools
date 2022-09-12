@@ -1,5 +1,7 @@
 # s2stools
 
+(Preliminary) Documentation: https://s2stools.readthedocs.io
+
 <details><summary>Why</summary>
 E.g., ECWMF produces hindcasts on the fly. s2stools can make the data handling easier by introducing new dimensions (reftime, hc_year, leadtime). All functionalities are based on xarray `DataArrays` and `Datasets`.
 </details>
