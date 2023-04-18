@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 def fill_between(dataarray, x, y, ax=None, ci=None, **kwargs):
     """
     wraps matplotlib's fill_between for DataArrays
+    
     Parameters
     ----------
     dataarray : xr.DataArray
@@ -17,6 +18,7 @@ def fill_between(dataarray, x, y, ax=None, ci=None, **kwargs):
         axis to draw plot, if None call plt.fill_between()
     kwargs : dict
         kwargs passed to matplotlib's fill_between
+        
     Returns
     -------
     void
@@ -88,3 +90,35 @@ def mean_and_error(
 #     gl.right_labels = False
 #     return p
 # 
+
+
+def plot_dots_where(
+    dataarray, condition, every_nth_lon=1, every_nth_lat=1, **scatter_kws
+):
+    """
+    Scatter Points where condition is fulfilled.
+    
+    Parameters
+    ----------
+    dataarray : xr.DataArray
+        Data Field which is used for condition.
+    condition : lambda expression
+        For example lambda x: x > 0 would scatter points where `dataarray` is positive. 
+    every_nth_lon : int
+        Skip every `every_nth_lon` th longitude point when scatter plotting. 
+    every_nth_lat : int
+        Skip every `every_nth_lat` th latitude point when scatter plotting.
+    scatter_kws : dict
+        kwargs passed to matplotlib's scatter
+        
+    """
+    # coarsen data to low resolution
+    data_lr = dataarray.coarsen(
+        lon=every_nth_lon, lat=every_nth_lat, boundary="trim"
+    ).mean()
+    # stack lon and lat
+    data_stacked = data_lr.stack(gridpoint=("lon", "lat"))
+    # create mask based on condition
+    mask = data_stacked.where(condition(data_stacked), drop=True)
+    # scatter plot
+    plt.scatter(mask.lon, mask.lat, **scatter_kws)
