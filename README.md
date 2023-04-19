@@ -1,5 +1,7 @@
 # s2stools
 
+Current development on branch `restructure`
+
 (Preliminary) Documentation: https://s2stools.readthedocs.io
 
 <details><summary>Why</summary>
