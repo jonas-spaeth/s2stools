@@ -2,8 +2,8 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 
-from s2stools.download.ecmwf import S2SDownloaderECMWF
-from s2stools.download.ecmwf import model_setup
+from temporary.download.ecmwf import S2SDownloaderECMWF
+from temporary.download.ecmwf import model_setup
 
 
 class TestS2SDownloaderECMWF(TestCase):

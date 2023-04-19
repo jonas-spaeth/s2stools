@@ -1,5 +1,5 @@
 import numpy as np
-from .. import utils
+from s2stools import utils
 from tqdm import tqdm
 from ._process_events import *
 import xarray as xr

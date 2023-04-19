@@ -1,6 +1,6 @@
 import numpy as np
 from datetime import datetime
-from .. import utils
+from s2stools import utils
 
 
 def date_to_winter_season(date):

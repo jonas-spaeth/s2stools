@@ -1,4 +1,4 @@
-from .. import utils
+from s2stools import utils
 
 
 def add_validtime(da):

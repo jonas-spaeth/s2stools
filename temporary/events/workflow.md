@@ -1,6 +1,6 @@
 ````python
 import xarray as xr
-from s2stools import events
+from temporary import events
 
 ds = xr.Dataset(...)
 
