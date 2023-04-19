@@ -8,6 +8,7 @@
    Jupyter tutorials <tutorials>
    API reference <_autosummary/s2stools>
 
+
 s2stools documentation
 =====================================================
 
