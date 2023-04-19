@@ -1,7 +1,7 @@
 import datetime
 import matplotlib.pyplot as plt
 import matplotlib.ticker
-from cartopy.util import add_cyclic_point
+# from cartopy.util import add_cyclic_point
 import numpy as np
 
 
@@ -85,6 +85,8 @@ def cyclic_xyz(field, longitude_name="longitude", latitude_name="latitude"):
     --------
     Don't forget the star expression for unpacking.
     """
+    print("Not implemented due to cartopy.")
+    pass
 
 
 def xlim_days(ax=None, leftlim=None, rightlim=None):
