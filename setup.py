@@ -22,6 +22,6 @@ setup(
         "xarray",
         "tqdm",
         "pandas",
-        "cartopy"
+        "cartopy<=0.18.0"
     ],
 )
