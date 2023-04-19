@@ -1,11 +1,10 @@
 import xarray as xr
 import numpy as np
-from s2stools import utils
 import glob
 import pandas as pd
 
 
-def s2sparser(ds):
+def s2sparser(path):
     """
     Use in the following form: xr.open_mfdataset("/some/path/filename_2017*.nc", preprocess=s2stools.process.s2sparser)
     Will create dimensions reftime, hc_year, leadtime.
@@ -13,19 +12,13 @@ def s2sparser(ds):
 
     Parameters
     ----------
-    ds :
-
+    path : str
+        Path pointing to netCDF files.
     Returns
     -------
     xr.Dataset
+    """
 
-    Warnings
-    --------
-    Reftime needs to be somehow encoded in filename and embraced by underscores. Valid filenames: s2s_ecmwf_2020-01-01_cf.nc, s2s_ecmwf_20200101_cf.nc; Invalid filenames: s2s-ecmwf-20200101-cf.nc, s2s_ecmwf_ref20200101_cf.nc, s2s_ecmwf_20200101.nc
-    """
-    """
-    
-    """
     ### get reftime (needed for relative hindcast year)
     inferred_reftime = _infer_reftime_from_filename(ds.encoding["source"])
 

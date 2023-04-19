@@ -12,11 +12,10 @@ def xaxis_unit_days(ax=None, multiple=7, minor_multiple=1):
     Parameters
     ----------
     ax : plt.Axis
-        Axis.
     multiple : int
         Defaults to every 7 days.
     minor_multiple : int
-        Defaults to every 1 days.
+        Defaults to every 1 day.
 
     """
 
@@ -47,11 +46,13 @@ def spaghetti(**kwargs):
 
     Parameters
     ----------
-    kwargs : any new plotting keyword arguments to add or to overwrite
+    kwargs : mappable
+        keyword arguments (optional)
 
     Returns
     -------
     dict
+        Spaghetti keyword dictionary
     """
     standard_format = dict(c="k", add_legend=False, alpha=0.5, lw=1.5, hue="number")
     return standard_format | dict(kwargs)
@@ -60,46 +61,60 @@ def spaghetti(**kwargs):
 def cyclic_xyz(field, longitude_name="longitude", latitude_name="latitude"):
     """
     Add cyclic point to longitude such that vertical white line gets removed on contour plots.
-    Use as in this example:
-    ```
-    fig, ax = plt.subplots()
-    ax.contourf(
-        *dataarray,
-        cmap='coolwarm'
-    )
-    ```
+    Use as example below.
 
     Parameters
     ----------
     field : xr.DataArray
-    longitude_name : Defaults to 'longitude'
-    latitude_name : Defaults to 'latitude'
+    longitude_name : str
+        Defaults to 'longitude'
+    latitude_name : str
+        Defaults to 'latitude'
 
     Returns
-    x, y, z
     -------
+    tuple
+        x, y, z DataArrays
 
+    Examples
+    --------
+    >>> fig, ax = plt.subplots()
+    >>> ax.contourf(*dataarray, cmap='coolwarm')
+
+    Warnings
+    --------
+    Don't forget the star expression for unpacking.
     """
-    field = field.transpose(latitude_name, longitude_name)
-    lon = field.longitude
-    lat = field.latitude
-    adj_field, adj_lon = add_cyclic_point(field, coord=lon)
-    return adj_lon, lat, adj_field
 
 
-def xlim_days(leftlim=None, rightlim=None):
+def xlim_days(ax=None, leftlim=None, rightlim=None):
     """
-    Set xlimits on timedelta plots.
+    Adjust limits.
 
     Parameters
     ----------
-    leftlim : day as float
-    rightlim : day as float
+    ax : plt.Axis
+        apply limit to a given axis
+    leftlim : float
+        day left limit
+    rightlim : float
+        day right limit
 
     Returns
     -------
     (leftlim, rightlim)
 
+    Warnings
+    --------
+    warn here
+
+    Examples
+    --------
+    examples here
+    ``plt.plot()``
+
+
+        $ python example_numpy.py
     """
 
     def _to_nanoseconds(x):
@@ -109,4 +124,6 @@ def xlim_days(leftlim=None, rightlim=None):
         leftlim = _to_nanoseconds(leftlim)
     if rightlim is not None:
         rightlim = _to_nanoseconds(rightlim)
+    ax = ax if ax is not None else plt.gca()
+    ax.set_xlim(leftlim, rightlim)
     return (leftlim, rightlim)

@@ -1,49 +1,18 @@
-.. s2stools documentation master file, created by
-   sphinx-quickstart on Wed Jul 27 09:35:31 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Documentation of s2stools
-====================================
-
-
-
-.. autosummary::
-   :toctree: _autosummary
-   :recursive:
-
-   s2stools
-   s2stools.process
-   s2stools.process.save_one_file_per_reftime
-   s2stools.process.add_validtime
-   s2stools.process.blocks_where
-   s2stools.process.zonal_wavenumber_decomposition
-   s2stools.process.open_files
-   s2stools.plot
-   s2stools.plot.xaxis_unit_days
-   s2stools.plot.symmetric_ylim
-   s2stools.events
-   s2stools.events.find_ssw
-   s2stools.events.ssw_compendium_event_dates
-   s2stools.events.blocks_where
-   s2stools.clim
-   s2stools.clim.deseasonalize
-
-
+..
+   Note: Items in this toctree form the top-level navigation. See `api.rst` for the `autosummary` directive, and for why `api.rst` isn't called directly.
 
 .. toctree::
-   :maxdepth: 5
-   :caption: Contents:
+   :hidden:
 
-   README.md
+   Home page <self>
+   Jupyter tutorials <tutorials>
+   API reference <_autosummary/s2stools>
 
+s2stools documentation
+=====================================================
 
-Indices and tables
-==================
+s2stools implements functions that help organizing s2s forecast data.
+For now, it is mainly tested with ECMWF forecasts.
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
-
+Installation:
+    ``pip install s2stools``

@@ -1,6 +1,5 @@
 import numpy as np
 import xarray as xr
-from warnings import warn
 from tqdm.autonotebook import tqdm
 import xarray.core.groupby
 
@@ -14,19 +13,37 @@ def climatology(
         groupby='validtime'
 ):
     """
-    Compute leadtime-, model-version- and season-dependent climatology.
+    Compute anomalies from the climatological mean. Deseasonalization is based on hindcasts.
+
     Parameters
     ----------
-    data :
-    window_size :
-    mean_or_std :
-    ndays_clim_filter :
-    hide_warnings :
-    groupby :
+    data : xr.Dataset or xr.DataArray
+        The raw data.
+    window_size : int
+        The mean is constructed using all reftimes within this plus-minus-day-interval.
+    mean_or_std : str
+        either 'mean' or 'std'
+    ndays_clim_filter : int
+        Apply running mean to the climatology.
+    hide_warnings : boolean
+        ???
+    groupby : str
+        must be 'leadtime' or 'validtime'
 
     Returns
     -------
-    xr.DataArray
+    xr.Dataset or xr.DataArray
+        xr.DataArray | xr.Dataset
+
+    Warnings
+    --------
+    If reftimes +- time window are not available then anomalies are still computed, but climatology is less robust.
+
+    Notes
+    -----
+    There my be use cases where only one reftime and no running mean should be used, e.g., for computing anomalies of
+    forecast variance.
+
     """
     if mean_or_std == "mean":
         aggregation_func = xarray.core.groupby.DataArrayGroupByAggregations.mean
@@ -152,7 +169,7 @@ def nam(dataarray):
 
     Parameters
     ----------
-    dataarray :
+    dataarray : xr.DataArray
 
     Returns
     -------

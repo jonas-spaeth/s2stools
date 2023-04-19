@@ -1,1 +1,4 @@
-from . import clim, download, events, plot, process, tests, utils
+"""
+API reference documentation for the example `mytoolbox` package.
+"""
+from . import clim, plot, process
