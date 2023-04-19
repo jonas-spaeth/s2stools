@@ -9,7 +9,6 @@ For more information on Jupyter itself, see `their web site <https://jupyter.org
 
    notebooks/intro
    notebooks/deseasonalization
-   notebooks/plotting
 
 .. toctree::
    :caption: Advanced tutorials
