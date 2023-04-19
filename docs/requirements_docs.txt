@@ -120,5 +120,4 @@ widgetsnbextension==4.0.5
 
 pandas
 xarray
-cartopy==0.18.0
 tqdm
