@@ -1,7 +1,7 @@
 """
 Module containing a class derived from another class.
 """
-from mytoolbox.mymodule1 import myClass1
+from s2stools.mymodule1 import myClass1
 
 
 class myClass2(myClass1):

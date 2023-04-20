@@ -6,7 +6,7 @@
 
    Home page <self>
    Jupyter tutorials <tutorials>
-   API reference <_autosummary/s2sools>
+   API reference <_autosummary/s2stools>
 
 Welcome to Sphinx-Autosummary-Recursion documentation
 =====================================================
