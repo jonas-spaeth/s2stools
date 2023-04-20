@@ -13,5 +13,5 @@ sphinx_autosummary_accessors
 
 numpy
 xarray
-tqdm
 pandas
+tqdm

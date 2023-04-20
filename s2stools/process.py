@@ -6,7 +6,6 @@ import pandas as pd
 
 def s2sparser(ds):
     """
-    Use in the following form: xr.open_mfdataset("/some/path/filename_2017*.nc", preprocess=s2stools.process.s2sparser)
     Will create dimensions reftime, hc_year, leadtime.
     Coordinate validtime is automatically added.
 
@@ -17,6 +16,11 @@ def s2sparser(ds):
     Returns
     -------
     xr.Dataset
+
+    Examples
+    --------
+    >>> # Use in the following form:
+    >>> xr.open_mfdataset("/some/path/filename_2017*.nc", preprocess=s2stools.process.s2sparser)
     """
 
     ### get reftime (needed for relative hindcast year)
