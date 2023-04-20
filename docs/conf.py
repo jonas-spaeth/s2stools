@@ -17,11 +17,11 @@ sys.path.insert(0, os.path.abspath('..'))  # Source code dir relative to this fi
 
 # -- Project information -----------------------------------------------------
 
-project = 'Sphinx-Autosummary-Recursion'
-author = 'jamleed'
+project = 's2stools'
+author = 'Jonas Spaeth'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+release = '0.2.0'
 
 # -- General configuration ---------------------------------------------------
 
