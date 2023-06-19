@@ -1,7 +1,7 @@
 import numpy as np
 import xarray as xr
-from tqdm.autonotebook import tqdm
 import xarray.core.groupby
+from tqdm.autonotebook import tqdm
 
 
 def climatology(
@@ -10,7 +10,7 @@ def climatology(
         mean_or_std="mean",
         ndays_clim_filter=7,
         hide_warnings=False,
-        groupby='validtime'
+        groupby="validtime",
 ):
     """
     Compute anomalies from the climatological mean. Deseasonalization is based on hindcasts.
@@ -64,7 +64,10 @@ def climatology(
         window = np.arange(reftime - window_size, reftime + window_size)
 
         hc_reftimes_in_window = (
-            data.sel(reftime=data.reftime.isin(window)).drop_sel(hc_year=0).isel(hc_year=0).reftime
+            data.sel(reftime=data.reftime.isin(window))
+            .drop_sel(hc_year=0)
+            .isel(hc_year=0)
+            .reftime
         )
 
         # stacked forecasts from hindcast years
@@ -77,7 +80,7 @@ def climatology(
             clim_stacked = clim_stacked.sel(number=0)
 
         # compute climatology
-        if groupby == 'validtime':
+        if groupby == "validtime":
             clim = (
                 (
                     clim_stacked.assign_coords(
@@ -114,7 +117,7 @@ def climatology(
 
         ### remove
         # compute climatology 2
-        if groupby == 'leadtime':
+        if groupby == "leadtime":
             if mean_or_std == "mean":
                 aggregation_dim = "reftime"
             elif mean_or_std == "std":
@@ -122,8 +125,7 @@ def climatology(
 
             clim = (
                 (
-                    clim_stacked
-                    .unstack()
+                    clim_stacked.unstack()
                     .groupby("leadtime")
                     .apply(
                         aggregation_func, dim=aggregation_dim
@@ -135,9 +137,7 @@ def climatology(
                     )
                     .mean()  # rolling mean
                     .sel(
-                        leadtime=slice(
-                            np.timedelta64(0, "D"), data.leadtime[-1]
-                        )
+                        leadtime=slice(np.timedelta64(0, "D"), data.leadtime[-1])
                     )  # cut climatology to length of forecast
                 )
                 .assign_coords(reftime=reftime)
@@ -175,4 +175,4 @@ def nam(dataarray):
     -------
 
     """
-    print('Not Implemented')
+    print("Not Implemented")

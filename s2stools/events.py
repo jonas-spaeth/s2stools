@@ -46,9 +46,7 @@ class EventComposite:
         # events from json
         if isinstance(events, str):
             # assert that event_jsons_path describes a path
-            self.event_list_json = _eventlist_from_json(
-                events.replace("MODEL", model)
-            )
+            self.event_list_json = _eventlist_from_json(events.replace("MODEL", model))
         elif isinstance(events, list):
             # assert event_jsons_path is the list of events
             self.event_list_json = events

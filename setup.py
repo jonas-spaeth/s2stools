@@ -24,6 +24,6 @@ setup(
         "xarray",
         "tqdm",
         "pandas",
-        # "cartopy"
+        "matplotlib"
     ],
 )

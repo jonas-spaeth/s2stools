@@ -1,7 +1,6 @@
-import xarray as xr
 import numpy as np
-import glob
 import pandas as pd
+import xarray as xr
 
 
 def s2sparser(ds):
@@ -78,7 +77,9 @@ def s2sparser(ds):
         relative_hcy = hcy - pd.Timestamp(reftime).year
 
         leadtime_broadcasted = np.broadcast_to(leadtime, reshaped_time.shape).ravel()
-        hcy_broadcasted = np.broadcast_to(relative_hcy, reshaped_time.T.shape).ravel(order="F")
+        hcy_broadcasted = np.broadcast_to(relative_hcy, reshaped_time.T.shape).ravel(
+            order="F"
+        )
 
         ds = ds.assign_coords(
             leadtime=("time", leadtime_broadcasted),
