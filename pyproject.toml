@@ -24,7 +24,7 @@ dependencies = [
     "numpy",
     "scipy",
     "xarray",
-    "xrft",
+    "tqdm"
 ]
 
 [project.urls]
