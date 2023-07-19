@@ -34,3 +34,6 @@ html_theme_options = {
     'display_version': True,
 }
 
+# favicon
+html_favicon = "_static/favicon.ico"
+

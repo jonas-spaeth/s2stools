@@ -7,6 +7,8 @@ Aimed to make working with subseasonal to seasonal forecast data a bit easier.
 
 Making use of python's ``xarray``.
 
+Find the source code here: https://github.com/jonas-spaeth/s2stools
+
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
