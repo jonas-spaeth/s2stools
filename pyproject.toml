@@ -28,5 +28,5 @@ dependencies = [
 ]
 
 [project.urls]
-# "Source Code" = "https://github.com/"
-# "Bug Tracker" = "https://github.com/"
+"Source Code" = "https://github.com/jonas-spaeth/s2stools"
+"Bug Tracker" = "https://github.com/jonas-spaeth/s2stools/issues"
