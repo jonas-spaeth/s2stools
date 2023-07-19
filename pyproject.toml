@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "s2stools"
+version = "0.3.0"
+authors = [
+    { name = "Jonas Spaeth", email = "jonas.spaeth@physik.uni-muenchen.de" },
+]
+description = "Tools for working with s2s forecast data"
+readme = "README.rst"
+requires-python = ">=3.8"
+keywords = ["atmosphere", "weather", "climate"]
+license = { text = "BSD-3-Clause" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Intended Audience :: Science/Research",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "xarray",
+    "xrft",
+]
+
+[project.urls]
+# "Source Code" = "https://github.com/"
+# "Bug Tracker" = "https://github.com/"

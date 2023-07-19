@@ -1,17 +1,1 @@
-.
-sphinx
-sphinx-rtd-theme
-pydata-sphinx-theme
-sphinx-autodoc-typehints
 nbsphinx
-ipython
-jupytext
-jupyter
-matplotlib
-sphinx-book-theme==0.1.7
-sphinx_autosummary_accessors
-
-numpy
-xarray
-pandas
-tqdm

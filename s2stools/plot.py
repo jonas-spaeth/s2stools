@@ -46,7 +46,7 @@ def xaxis_unit_days(ax=None, multiple=7, minor_multiple=1):
 def spaghetti(**kwargs):
     """
     Some standard keyword parameters to produce a ensemble forecast spaghetti plot.
-    Standard format is dict(c="k", add_legend=False, alpha=0.5, lw=1.5, hue="number").
+    Standard format is ``dict(c="k", add_legend=False, alpha=0.5, lw=1.5, hue="number")``.
 
     Parameters
     ----------
@@ -110,17 +110,6 @@ def xlim_days(ax=None, leftlim=None, rightlim=None):
     -------
     (leftlim, rightlim)
 
-    Warnings
-    --------
-    warn here
-
-    Examples
-    --------
-    examples here
-    ``plt.plot()``
-
-
-        $ python example_numpy.py
     """
 
     def _to_nanoseconds(x):

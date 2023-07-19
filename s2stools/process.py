@@ -16,10 +16,31 @@ def s2sparser(ds):
     -------
     xr.Dataset
 
+    Warnings
+    --------
+    Realtime and hindcast forecasts are combined in a single dataset.
+    If they have different ensemble sizes, then the resulting dataset is larger than necessary as coordinates span
+    full dimension space, e.g., ensemble members 12-51 are padded with NaN.
+    For a more efficient solution consider using xarray-datatree.
+
     Examples
     --------
     >>> # Use in the following form:
-    >>> xr.open_mfdataset("/some/path/filename_2017*.nc", preprocess=s2stools.process.s2sparser)
+    >>> ds = xr.open_mfdataset("/some/path/filename_2017*.nc", preprocess=s2stools.process.s2sparser)
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:    (leadtime: 47, longitude: 2, latitude: 1, number: 51,
+                    reftime: 2, hc_year: 21)
+    Coordinates:
+      * leadtime   (leadtime) timedelta64[ns] 0 days 1 days ... 45 days 46 days
+      * longitude  (longitude) float32 -180.0 -177.5
+      * latitude   (latitude) float32 60.0
+      * number     (number) int64 0 1 2 3 4 5 6 7 8 9 ... 42 43 44 45 46 47 48 49 50
+      * reftime    (reftime) datetime64[ns] 2017-11-16 2017-11-20
+      * hc_year    (hc_year) int64 -20 -19 -18 -17 -16 -15 -14 ... -5 -4 -3 -2 -1 0
+        validtime  (reftime, leadtime, hc_year) datetime64[ns] 1997-11-16 ... 201...
+    Data variables:
+        u          (reftime, latitude, longitude, leadtime, hc_year, number) float32 dask.array<chunksize=(1, 1, 2, 47, 20, 1), meta=np.ndarray>
     """
 
     ### get reftime (needed for relative hindcast year)

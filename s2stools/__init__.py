@@ -1,4 +1,4 @@
-"""
-API reference documentation for the example `mytoolbox` package.
-"""
-from . import clim, plot, process
+# from .basic import zonal_mean, meridional_mean
+# from .zonal_waves import zonal_wave_coeffs
+
+__version__ = "0.3.0"

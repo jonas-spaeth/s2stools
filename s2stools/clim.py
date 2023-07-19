@@ -26,14 +26,20 @@ def climatology(
     ndays_clim_filter : int
         Apply running mean to the climatology.
     hide_warnings : boolean
-        ???
+        e.g. for UKMO it can happen that one is interested in the climatology for 2020-11-01, but hindcasts are available
+        only at 2020-11-05; by default, the climatology is computed for 2020-11-05 onwards and the missing previous 4
+        days are linearly extrapolated; if this happens, hide_warnings=False will warn you!
     groupby : str
         must be 'leadtime' or 'validtime'
 
+        If "leadtime", create climatology along same leadtime, e.g., different forecasts but always for
+        leaditme=+4 days, leadtime=+5 days, ...; If "validtime", create climatology along same day-of-year, e.g.,
+        different forecasts but always for March 03, March 04, March 05
+
     Returns
     -------
-    xr.Dataset or xr.DataArray
-        xr.DataArray | xr.Dataset
+    climatology: xr.DataArray or xr.Dataset
+        climatological mean or climatological std based on hindcasts
 
     Warnings
     --------
@@ -41,8 +47,10 @@ def climatology(
 
     Notes
     -----
-    There my be use cases where only one reftime and no running mean should be used, e.g., for computing anomalies of
-    forecast variance.
+    There my be use cases where no running mean should be used, e.g., for computing anomalies of
+    forecast variance, which grows non-linearly!
+    Moreover, if anomalies of variance are computed, make sure that groupby is set to "leadtime", because
+    spread is more sensitive to the leadtime of course than to the day of year.
 
     """
     if mean_or_std == "mean":
@@ -161,18 +169,3 @@ def climatology(
 
     clim_list = xr.concat(clim_list, dim="reftime")
     return clim_list
-
-
-def nam(dataarray):
-    """
-    Not implemented.
-
-    Parameters
-    ----------
-    dataarray : xr.DataArray
-
-    Returns
-    -------
-
-    """
-    print("Not Implemented")
