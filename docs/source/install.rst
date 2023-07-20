@@ -9,7 +9,8 @@ Dependencies
 ``scipy``,
 ``xarray``,
 ``xrft``,
-``tqdm``
+``tqdm``,
+``matplotlib``
 
 Installation
 ------------
