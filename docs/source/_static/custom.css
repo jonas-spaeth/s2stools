@@ -1,4 +1,4 @@
 /* Adjust the Sphinx logo size */
 .logo img {
-    min-height: 200px; /* Change this value to the desired height */
+    max-height: 20px; /* Change this value to the desired height */
 }

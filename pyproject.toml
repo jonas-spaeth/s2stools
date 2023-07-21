@@ -26,7 +26,8 @@ dependencies = [
     "xarray",
     "tqdm",
     "matplotlib",
-    "pandas"
+    "pandas",
+    "dask"
 ]
 
 [project.urls]

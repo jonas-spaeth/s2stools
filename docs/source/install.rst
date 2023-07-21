@@ -11,7 +11,8 @@ Dependencies
 ``xrft``,
 ``tqdm``,
 ``matplotlib``,
-``pandas``
+``pandas``,
+``dask``
 
 Installation
 ------------
