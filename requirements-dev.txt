@@ -8,7 +8,6 @@ sphinx
 twine
 dask  # new
 lxml
-ecmwf-api-client
 # These are dependencies of various sphinx extensions for documentation.
 ipython
 numpydoc

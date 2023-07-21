@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "s2stools"
-version = "0.3.0"
+version = "0.3.3"
 authors = [
     { name = "Jonas Spaeth", email = "jonas.spaeth@physik.uni-muenchen.de" },
 ]
@@ -27,7 +27,8 @@ dependencies = [
     "tqdm",
     "matplotlib",
     "pandas",
-    "dask"
+    "dask",
+    "ecmwf-api-client"
 ]
 
 [project.urls]

@@ -12,7 +12,8 @@ Dependencies
 ``tqdm``,
 ``matplotlib``,
 ``pandas``,
-``dask``
+``dask``,
+``ecmwf-api-client``
 
 Installation
 ------------

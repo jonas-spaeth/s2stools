@@ -4,3 +4,4 @@ scipy
 xarray
 tqdm
 matplotlib
+ecmwf-api-client
