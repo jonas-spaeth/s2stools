@@ -10,7 +10,8 @@ Dependencies
 ``xarray``,
 ``xrft``,
 ``tqdm``,
-``matplotlib``
+``matplotlib``,
+``pandas``
 
 Installation
 ------------

@@ -25,7 +25,8 @@ dependencies = [
     "scipy",
     "xarray",
     "tqdm",
-    "matplotlib"
+    "matplotlib",
+    "pandas"
 ]
 
 [project.urls]
