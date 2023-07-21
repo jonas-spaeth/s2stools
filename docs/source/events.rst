@@ -20,4 +20,5 @@ Functions
 ---------
 .. automodule:: s2stools.events
    :members:
+   :exclude-members: integrated_extr_prob, prob_oneday_extreme_nam_within_period_after_event, prob_oneday_extreme_nam_within_period_clim
 

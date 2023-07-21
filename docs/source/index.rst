@@ -19,6 +19,8 @@ Find the source code here: https://github.com/jonas-spaeth/s2stools
    plot
    process
    events
+   compute
+   indices
 
 Indices and tables
 ==================

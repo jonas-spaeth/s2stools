@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
+import pandas as pd
+from s2stools.utils import add_years
+from pathlib import Path
+
+IMPL_DATE = "ImplementationDate in S2S"
 
 
 def s2sparser(ds):
@@ -142,3 +147,174 @@ def _infer_reftime_from_filename(filepath):
             + "I mean, we could specify the reftime, e.g., as a list, but I'm not sure if that's convenient... let me know if yes."
         )
     return inferred_reftime
+
+
+def download_table_ecmwf_model():
+    path = "https://confluence.ecmwf.int/display/S2S/ECMWF+Model"
+    table_ecmwf_model_raw = pd.read_html(path)[0]
+
+    table_ecmwf_model = table_ecmwf_model_raw.iloc[1:]
+    table_ecmwf_model.loc[:, IMPL_DATE] = pd.to_datetime(
+        table_ecmwf_model[IMPL_DATE], infer_datetime_format=True
+    )
+    return table_ecmwf_model
+
+
+def model_version_of_init_date(date, table_ecmwf_model):
+    diff = date - table_ecmwf_model[IMPL_DATE]
+    return table_ecmwf_model[diff >= pd.Timedelta("0D")].iloc[0]["Model version"]
+
+
+def add_model_cycle_ecmwf(ds):
+    """
+    Add a coordinate ``cycle`` to a dataset that denotes the ecmwf model cycle.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        ecmwf s2s forecast data
+
+    Returns
+    -------
+    ds : xr.Dataset
+        dataset with new coordinate
+    """
+
+    try:
+        import lxml
+    except ImportError:
+        print("lxml required, consider pip install lxml")
+    else:
+        table_ecmwf_model = download_table_ecmwf_model()
+        mv = []
+        for d in ds.reftime:
+            mv.append(model_version_of_init_date(d.values, table_ecmwf_model))
+        return ds.assign_coords(cycle=("reftime", mv))
+
+
+def concat_era5_before_s2s(s2s, era5, max_neg_leadtime_days=46):
+    """
+    Append ERA5 prior to start of forecasts, ERA5 is indicated as negative leadtimes.
+
+    Parameters
+    ----------
+    s2s : xr.DataArray
+    era5 : xr.DataArray
+        requires dimension ``time``
+    max_neg_leadtime_days : int
+        maximum negative leadtime (i.e. number of ERA5 days to append)
+
+    Returns
+    -------
+    da : xr.DataArray
+        dataset with s2s and era5 combined
+    """
+    assert s2s.name == era5.name
+    s2s_with_neg_leadtimes = add_validtime(
+        s2s.drop("validtime").reindex(
+            leadtime=pd.timedelta_range(f"-{max_neg_leadtime_days}D", "-1D")
+        )
+    )
+    era5_on_s2s_structure = era5.sel(time=s2s_with_neg_leadtimes.validtime)
+    era5_on_s2s_structure_with_number = (
+        era5_on_s2s_structure.drop("time")
+        .expand_dims("number")
+        .assign_coords(number=[0])
+        .reindex(number=s2s.number, method="nearest")
+    )
+    s2s_and_era5 = xr.concat(
+        [
+            s2s,
+            era5_on_s2s_structure_with_number,
+        ],
+        dim="leadtime",
+    ).sortby("leadtime")
+    return s2s_and_era5
+
+
+def add_validtime(da):
+    """
+    Given a DataArray/ Dataset with dimensions ('reftime', 'hc_year', 'leadtime'), add a coordinate validtime that
+    indicates the target date of the forecast. Example: reftime="2000-01-01", hc_year=-1, leadtime=+3D corresponds
+    to validtime "1999-01-03".
+
+    Parameters
+    ----------
+    da : xr.DataArray or xr.Dataset
+        Input data, requires dimensions ('reftime', 'hc_year', 'leadtime').
+
+    Returns
+    -------
+    xr.DataArray or xr.Dataset
+        Same dataset as input, but with coordinate validtime.
+
+    Notes
+    -------
+    Validtime is of type `np.datetime64` and it will not be a dimension.
+
+    Warnings
+    _______
+    Only dimension `leadtime` is supported, not `days_since_init`.
+
+
+    Warnings
+    _______
+    Only makes sense for ECMWF data.
+    """
+    da_stacked = da.stack(day=("reftime", "hc_year", "leadtime"))
+    fc_day = (
+            add_years(da_stacked.reftime.values, da_stacked.hc_year.values)
+            + da_stacked.leadtime.values
+    )
+
+    fc_day_reshaped = fc_day.reshape(len(da.reftime), len(da.hc_year), len(da.leadtime))
+    res = da.assign_coords(
+        validtime=(("reftime", "hc_year", "leadtime"), fc_day_reshaped)
+    )
+    return res
+
+
+def save_one_file_per_reftime(data: xr.Dataset, path: str, create_subdirectory=None):
+    """
+    Save S2S Dataset with one file per reftime.
+
+    Args:
+        data: xr.Dataset
+            Data
+        path: str
+            target path including filename. _REFTIME.nc will be added. E.g.: /home/foo/s2s_somefilename
+
+    Parameters
+    ----------
+        data: xr.Dataset
+            Dataset to save.
+        path: str
+            target path including filename. _REFTIME.nc will be added. E.g.: /home/foo/s2s_somefilename
+        create_subdirectory: str or None
+            Check if the subdirectory exists. If yes, raise error. If no, create subdirectory and save files into this subdirectory. Defaults to None, where no subdirectory is created and the files are just saved to 'path'.
+
+
+    """
+    if create_subdirectory is not None:
+        # e.g. if path = /foo/filename
+        dir_excl_subdir = str.join("/", path.split("/")[:-1])  # e.g.: /foo
+        dir_incl_subdir = dir_excl_subdir + "/" + create_subdirectory  # e.g.: /foo/bar
+        Path(dir_incl_subdir).mkdir(parents=True, exist_ok=False)
+        path = dir_incl_subdir + "/" + path.split("/")[-1]  # e.g.: /foo/bar/filename
+
+    reftimes, datasets = zip(*data.groupby("reftime", squeeze=False))
+    # print(datasets[0])
+    # datasets = [d.expand_dims("reftime") for d in datasets]
+    paths = [
+        f"{path}_{f}.nc"
+        for f in pd.DatetimeIndex(reftimes).strftime("%Y-%m-%d")
+    ]
+    result = xr.save_mfdataset(datasets, paths, compute=False)
+
+    try:
+        from dask.diagnostics import ProgressBar
+    except ImportError:
+        result.compute()
+    else:
+        with ProgressBar():
+            result.compute()

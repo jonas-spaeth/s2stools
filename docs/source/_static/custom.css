@@ -1,0 +1,4 @@
+/* Adjust the Sphinx logo size */
+.logo img {
+    max-height: 20px; /* Change this value to the desired height */
+}

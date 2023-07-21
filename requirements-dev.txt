@@ -6,6 +6,8 @@ flake8
 pytest
 sphinx
 twine
+dask  # new
+lxml
 # These are dependencies of various sphinx extensions for documentation.
 ipython
 numpydoc
