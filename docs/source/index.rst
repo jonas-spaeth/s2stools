@@ -21,6 +21,7 @@ Find the source code here: https://github.com/jonas-spaeth/s2stools
    events
    compute
    indices
+   download
 
 Indices and tables
 ==================
