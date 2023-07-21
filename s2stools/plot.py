@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
 import xarray as xr
-
+import matplotlib.patches as mpatches
 
 # from cartopy.util import add_cyclic_point
 
@@ -102,7 +102,7 @@ def cyclic_xyz(field, longitude_name="longitude", latitude_name="latitude"):
         lat = field.latitude
         adj_field, adj_lon = add_cyclic_point(field, coord=lon)
         return adj_lon, lat, adj_field
-    pass
+
 
 
 def xlim_days(ax=None, leftlim=None, rightlim=None):
@@ -271,3 +271,81 @@ def symmetric_ylim(ax):
     ylim = ax.get_ylim()
     absylim = np.max(np.abs(ylim))
     ax.set_ylim(-absylim, absylim)
+
+
+def add_map(ax, **kwargs):
+    """
+    Add a nicely formatted map to a proplot axis.
+    Works only with `proplot`  https://proplot.readthedocs.io/en/stable/.
+
+    Parameters
+    ----------
+    ax : proplot axis
+    kwargs : dict
+        parameters passed to ax.format(...). overwrites default parameters.
+
+    Returns
+    -------
+
+    """
+    default_kwargs = dict(
+        coast=True,
+        land=True,
+        landcolor="gray1",
+        landalpha=0.2,
+        landzorder=-100,
+        coastcolor="gray7",
+        coastlinewidth=0.4,
+        coastzorder=100,
+    )
+    plotting_kwargs = default_kwargs | kwargs
+    ax.format(**plotting_kwargs)
+
+def add_box(dict_lon_lat_slice, ax, **kwargs):
+    """
+    Add a box to a map projection plot.
+
+    Parameters
+    ----------
+    dict_lon_lat_slice : dict
+        E.g. {"longitude": slice(0, 180), "latitude": slice(40, 60)}
+    ax : axis
+        matplotlib axis
+    kwargs : dict
+        additional keyword arguments to format/ overwrite appearance, e.g.: facecolor, edgecolor, lw, zorder
+
+    Returns
+    -------
+
+    Warnings
+    --------
+    Requires ``cartopy`` (which is not a formal dependency of ``s2stools``.
+    """
+
+
+    try:
+        import cartopy.crs as ccrs
+    except:
+        print("This function requires cartopy. Consider: pip install cartopy")
+    else:
+        box = dict_lon_lat_slice
+        width = box["longitude"].stop - box["longitude"].start
+        height = box["latitude"].start - box["latitude"].stop
+        x, y = box["longitude"].start, box["latitude"].stop
+
+        plot_kwargs = dict(
+            facecolor=(0, 0, 1, 0.05),
+            edgecolor="k",
+            lw=1,
+            zorder=10,
+        ) | dict(kwargs)
+
+        ax.add_patch(
+            mpatches.Rectangle(
+                xy=[x, y],
+                width=width,
+                height=height,
+                transform=ccrs.PlateCarree(),
+                **plot_kwargs
+            )
+        )
