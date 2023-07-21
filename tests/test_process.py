@@ -1,6 +1,7 @@
+import numpy as np
 import xarray as xr
 from s2stools.process import s2sparser, add_model_cycle_ecmwf, add_validtime, concat_era5_before_s2s, stack_fc, \
-    stack_ensfc, combine_s2s_and_reanalysis
+    stack_ensfc, combine_s2s_and_reanalysis, _infer_reftime_from_filename
 
 
 def test_s2sparser():
@@ -76,3 +77,32 @@ def test_combine_s2s_and_reanalysis():
     # Dataset without stacking to ensfc
     ds_combined = combine_s2s_and_reanalysis(ds_s2s, ds_era5, ensfc=False)
     print(ds_combined)
+
+
+def test__infer_reftime_from_filename():
+    # works
+    path = 'data/s2s_u60_10hPa_20171116_cf_short.nc'
+    result = _infer_reftime_from_filename(path)
+    assert isinstance(result, np.datetime64)
+
+    # works
+    path = 'data/s2s_u60_10hPa_cf_2017_11_16_short.nc'
+    result = _infer_reftime_from_filename(path)
+    assert isinstance(result, np.datetime64)
+
+    # does not work
+    path = 'data/s2s_u60_10hPa_cf_short.nc'
+    result = _infer_reftime_from_filename(path)
+    assert not isinstance(result, np.datetime64)
+
+    # works
+    path = 'data/s2s_something_else_2017-11-01.nc'
+    result = _infer_reftime_from_filename(path)
+    assert isinstance(result, np.datetime64)
+
+    # works
+    path = 'data/s2s_something_else_20171101.nc'
+    result = _infer_reftime_from_filename(path)
+    assert isinstance(result, np.datetime64)
+
+

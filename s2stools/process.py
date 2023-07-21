@@ -13,6 +13,7 @@ def s2sparser(ds):
     """
     Will create dimensions reftime, hc_year, leadtime.
     Coordinate validtime is automatically added.
+    Files need to have the forecast realtime date somewhere in the filename, e.g., `s2s_something_2017-11-16.nc`.
 
     Parameters
     ----------
@@ -129,8 +130,14 @@ def _infer_reftime_from_filename(filepath):
     filename_underscore_splitted = (
             filename_underscore_splitted[-2:] + filename_underscore_splitted[:-2]
     )
+    # split points
+    filename_underscore_splitted_point_splitted = [
+        i.split('.') for i in filename_underscore_splitted
+    ]
+    filename_underscore_splitted_point_splitted = _flatten_list(filename_underscore_splitted_point_splitted)
+
     # try to parse reftime from one of these items
-    for item in filename_underscore_splitted:
+    for item in filename_underscore_splitted_point_splitted:
         try:
             inferred_reftime = pd.Timestamp(item)
             inferred_reftime = np.datetime64(inferred_reftime)
@@ -143,11 +150,31 @@ def _infer_reftime_from_filename(filepath):
         inferred_reftime = None
         print(
             "unable to identify correct reftime!"
-            + f"Infering reftime from one of these items: {filename_underscore_splitted} failed."
+            + f"Infering reftime from one of these items: {filename_underscore_splitted_point_splitted} failed."
             + "Make sure that the reftime appears in the filename, otherwise can't infer correct reftime."
             + "I mean, we could specify the reftime, e.g., as a list, but I'm not sure if that's convenient... let me know if yes."
+            + "\nValid file names are for example s2s_something_else_2017-11-01_foo_bar.nc, s2s_something_else_20171101.nc"
         )
     return inferred_reftime
+
+
+def _flatten_list(lst):
+    """
+    Convert a list of lists to a flattened list.
+
+    Parameters
+    ----------
+    lst
+
+    Returns
+    -------
+    flat_list : list
+    """
+    for item in lst:
+        if isinstance(item, list):
+            yield from _flatten_list(item)
+        else:
+            yield item
 
 
 def download_table_ecmwf_model():
