@@ -6,6 +6,11 @@ s2stools
     :target: https://pyzome.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
+
+.. image:: https://img.shields.io/pypi/v/s2stools.svg
+    :target: https://img.shields.io/pypi/v/s2stools
+
+
 Documentation
 -------------
 
