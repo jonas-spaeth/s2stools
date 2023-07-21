@@ -87,8 +87,21 @@ def cyclic_xyz(field, longitude_name="longitude", latitude_name="latitude"):
     Warnings
     --------
     Don't forget the star expression for unpacking.
+
+    Warnings
+    --------
+    Requires ``cartopy`` (which is not a formal dependency of ``s2stools``.
     """
-    print("Not implemented due to cartopy.")
+    try:
+        from cartopy.util import add_cyclic_point
+    except:
+        print("This function requires cartopy. Consider: pip install cartopy")
+    else:
+        field = field.transpose(latitude_name, longitude_name)
+        lon = field.longitude
+        lat = field.latitude
+        adj_field, adj_lon = add_cyclic_point(field, coord=lon)
+        return adj_lon, lat, adj_field
     pass
 
 
