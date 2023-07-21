@@ -4,6 +4,7 @@ import xarray as xr
 import pandas as pd
 from s2stools.utils import add_years
 from pathlib import Path
+from warnings import warn
 
 IMPL_DATE = "ImplementationDate in S2S"
 
@@ -192,7 +193,25 @@ def add_model_cycle_ecmwf(ds):
         return ds.assign_coords(cycle=("reftime", mv))
 
 
-def concat_era5_before_s2s(s2s, era5, max_neg_leadtime_days=46):
+def _reindex_reanalysis_with_s2s_valid_dates(s2s, reanalysis):
+    """
+    Reindex era5 to available s2s valid dates
+
+    Parameters
+    ----------
+    s2s
+    reanalysis
+
+    Returns
+    -------
+    data : xr.DataArray | xr.Dataset
+    """
+    validtime_flattened_dates = np.unique(s2s.validtime.values.flatten())
+    reanalysis_padded = reanalysis.reindex(time=validtime_flattened_dates)
+    return reanalysis_padded
+
+
+def concat_era5_before_s2s(s2s: xr.DataArray, era5: xr.DataArray, max_neg_leadtime_days: int = 46) -> xr.DataArray:
     """
     Append ERA5 prior to start of forecasts, ERA5 is indicated as negative leadtimes.
 
@@ -210,12 +229,26 @@ def concat_era5_before_s2s(s2s, era5, max_neg_leadtime_days=46):
         dataset with s2s and era5 combined
     """
     assert s2s.name == era5.name
+
+    # memory warning if dataset has dimension number
+    if 'number' in s2s.dims:
+        if len(s2s.number) > 1:
+            warn(
+                'If dimension number in S2S dataset, then padding ERA5 before forecast start leads to considerable' \
+                'memory usage, as all ensemble members are padded with the same values.',
+                ResourceWarning
+            )
+
+    # reindex s2s forecasts to negative lags
     s2s_with_neg_leadtimes = add_validtime(
         s2s.drop("validtime").reindex(
             leadtime=pd.timedelta_range(f"-{max_neg_leadtime_days}D", "-1D")
         )
     )
-    era5_on_s2s_structure = era5.sel(time=s2s_with_neg_leadtimes.validtime)
+
+    era5_padded = _reindex_reanalysis_with_s2s_valid_dates(s2s_with_neg_leadtimes, era5)
+
+    era5_on_s2s_structure = era5_padded.sel(time=s2s_with_neg_leadtimes.validtime)
     era5_on_s2s_structure_with_number = (
         era5_on_s2s_structure.drop("time")
         .expand_dims("number")
@@ -318,3 +351,135 @@ def save_one_file_per_reftime(data: xr.Dataset, path: str, create_subdirectory=N
     else:
         with ProgressBar():
             result.compute()
+
+
+def stack_fc(d, reset_index=True):
+    """
+    Go from dimensions (``reftime``, ``hc_year``, ``number``) to dimension ``fc``.
+
+    Parameters
+    ----------
+    d : xr.DataArray | xr.Dataset
+    reset_index : bool
+        If True, drop multiindex and flatten around new index ``fc``.
+
+    Returns
+    -------
+    data : xr.DataArray | xr.Dataset
+    """
+    if reset_index:
+        return d.stack(fc=("reftime", "hc_year", "number")).reset_index("fc")
+    else:
+        return d.stack(fc=("reftime", "hc_year", "number"))
+
+
+def stack_ensfc(d, reset_index=True):
+    """
+    Go from dimensions (``reftime``, ``hc_year``) to dimension ``fc``.
+
+    Parameters
+    ----------
+    d : xr.DataArray | xr.Dataset
+    reset_index : bool
+        If True, drop multiindex and flatten around new index ``fc``.
+
+    Returns
+    -------
+    data : xr.DataArray | xr.Dataset
+    """
+    if reset_index:
+        return d.stack(fc=("reftime", "hc_year")).reset_index("fc")
+    else:
+        return d.stack(fc=("reftime", "hc_year"))
+
+
+def combine_s2s_and_reanalysis(s2s, reanalysis, ensfc=True):
+    """
+    Project reanalysis time series on S2S forecast data. Resulting object will have dimensions of s2s dataset.
+
+    Parameters
+    ----------
+    s2s : xr.Dataset | xr.DataArray
+    reanalysis : xr.Dataset | xr.DataArray
+    ensfc : bool
+        If True, stack resulting forecasts to ensemble forecasts ([reftime, hc_year] -> fc)
+
+    Returns
+    -------
+    combined_data : xr.Dataset
+
+    Examples
+    --------
+    >>> ds_s2s
+    <xarray.Dataset>
+    Dimensions:    (leadtime: 47, longitude: 2, latitude: 1, number: 51,
+                    reftime: 2, hc_year: 21)
+    Coordinates:
+      * leadtime   (leadtime) timedelta64[ns] 0 days 1 days ... 45 days 46 days
+      * longitude  (longitude) float32 -180.0 -177.5
+      * latitude   (latitude) float32 60.0
+      * number     (number) int64 0 1 2 3 4 5 6 7 8 9 ... 42 43 44 45 46 47 48 49 50
+      * reftime    (reftime) datetime64[ns] 2017-11-16 2017-11-20
+      * hc_year    (hc_year) int64 -20 -19 -18 -17 -16 -15 -14 ... -5 -4 -3 -2 -1 0
+        validtime  (reftime, leadtime, hc_year) datetime64[ns] 1997-11-16 ... 201...
+    Data variables:
+        u          (reftime, latitude, longitude, leadtime, hc_year, number) float32 dask.array<chunksize=(1, 1, 2, 47, 20, 1), meta=np.ndarray>
+    >>> ds_reanalysis
+    <xarray.Dataset>
+    Dimensions:    (time: 30, latitude: 1, longitude: 2)
+    Coordinates:
+      * time       (time) datetime64[ns] 2017-11-01 2017-11-02 ... 2017-11-30
+      * longitude  (longitude) float32 -180.0 -177.5
+      * latitude   (latitude) float32 60.0
+    Data variables:
+        u          (time, latitude, longitude) float32 dask.array<chunksize=(30, 1, 2), meta=np.ndarray>
+    >>> import s2stools.process
+    >>> s2stools.process.combine_s2s_and_reanalysis(s2s, reanalysis)
+    <xarray.Dataset>
+    Dimensions:    (leadtime: 47, longitude: 2, latitude: 1, number: 51,
+                    reftime: 2, hc_year: 21)
+    Coordinates:
+      * leadtime   (leadtime) timedelta64[ns] 0 days 1 days ... 45 days 46 days
+      * longitude  (longitude) float32 -180.0 -177.5
+      * latitude   (latitude) float32 60.0
+      * number     (number) int64 0 1 2 3 4 5 6 7 8 9 ... 42 43 44 45 46 47 48 49 50
+      * reftime    (reftime) datetime64[ns] 2017-11-16 2017-11-20
+      * hc_year    (hc_year) int64 -20 -19 -18 -17 -16 -15 -14 ... -5 -4 -3 -2 -1 0
+        validtime  (reftime, leadtime, hc_year) datetime64[ns] 1997-11-16 ... 201...
+    Data variables:
+        u          (reftime, latitude, longitude, leadtime, hc_year, number) float32 dask.array<chunksize=(1, 1, 2, 47, 20, 1), meta=np.ndarray>
+        u_verif    (reftime, leadtime, hc_year, latitude, longitude) float32 dask.array<chunksize=(2, 47, 21, 1, 2), meta=np.ndarray>
+
+    See Also
+    --------
+    :func:`concat_era5_before_s2s`
+    """
+    if 'validtime' not in s2s.coords:
+        s2s = add_validtime(s2s)
+
+    reanalysis_padded = _reindex_reanalysis_with_s2s_valid_dates(s2s, reanalysis)
+
+    # project reanalysis onto s22 structure
+    reanalysis_s2s_structure = reanalysis_padded.sel(time=s2s.validtime).drop("time")
+
+    # merge (and give reanalysis variables new names by adding "_verif")
+    try:
+        ifs_with_verif = xr.merge([s2s, reanalysis_s2s_structure])
+    except xr.core.merge.MergeError:
+        print('Renaming reanalysis variables by adding _verif (for verification)')
+        if isinstance(reanalysis_s2s_structure, xr.DataArray):
+            new_name = reanalysis_s2s_structure.name + "_verif"
+            reanalysis_s2s_structure = reanalysis_s2s_structure.rename(new_name)
+        elif isinstance(reanalysis_s2s_structure, xr.Dataset):
+            for n in reanalysis_s2s_structure.data_vars:
+                new_name = str(n) + "_verif"
+                reanalysis_s2s_structure = reanalysis_s2s_structure.rename({n: new_name})
+
+        ifs_with_verif = xr.merge([s2s, reanalysis_s2s_structure])
+
+    if ensfc:
+        # stack new dataset to ensfc
+        ifs_with_verif_ensfc = ifs_with_verif.stack(fc=["reftime", "hc_year"])
+        return ifs_with_verif_ensfc
+    else:
+        return ifs_with_verif

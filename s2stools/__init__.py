@@ -3,6 +3,6 @@
 # from .process import s2sparser
 # from .plot import spaghetti, xlim_days, xaxis_unit_days, cyclic_xyz
 
-from . import clim, events, process, plot, indices
+from . import clim, events, process, plot, indices, utils
 
 __version__ = "0.3.0"

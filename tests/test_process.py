@@ -1,8 +1,6 @@
-from warnings import warn
-
-import numpy as np
 import xarray as xr
-from s2stools.process import s2sparser, add_model_cycle_ecmwf, add_validtime, concat_era5_before_s2s
+from s2stools.process import s2sparser, add_model_cycle_ecmwf, add_validtime, concat_era5_before_s2s, stack_fc, \
+    stack_ensfc, combine_s2s_and_reanalysis
 
 
 def test_s2sparser():
@@ -47,27 +45,34 @@ def test_concat_era5_before_s2s():
     ds_s2s = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
     ds_era5 = xr.open_mfdataset('data/era5*.nc')
 
-    # memory warning if dataset has dimension number
-    if 'number' in ds_s2s.dims:
-        if len(ds_s2s.number) > 1:
-            warn(
-                'If dimension number in S2S dataset, then padding ERA5 before forecast start leads to considerable' \
-                'memory usage, as all ensemble members are padded with the same values.',
-                ResourceWarning
-            )
+    ds_combined = concat_era5_before_s2s(ds_s2s.u, ds_era5.u, max_neg_leadtime_days=10)
+    print(ds_combined)
 
-    # reindex s2s forecasts to negative lags
-    max_lt = ds_s2s.isel(leadtime=-1).leadtime.values.astype('timedelta64[D]').astype('int')
-    max_neg_leadtime_days = 10
-    ds_s2s_neg_lag_idx = add_validtime(
-        ds_s2s.drop_vars('validtime').reindex(
-            leadtime=np.arange(-max_neg_leadtime_days, max_lt + 1, dtype='timedelta64[D]')
-        )
-    )
 
-    # reindex era5 to available s2s valid dates
-    validtime_flattened_dates = np.unique(ds_s2s_neg_lag_idx.validtime.values.flatten())
-    ds_era5_padded = ds_era5.reindex(time=validtime_flattened_dates)
+def test_stack_fc():
+    ds = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
+    ds_stacked = stack_fc(ds)
+    assert 'fc' in ds_stacked.dims
 
-    # project reanalysis on s2s
-    ds_combined = concat_era5_before_s2s(ds_s2s.u, ds_era5_padded.u, max_neg_leadtime_days=max_neg_leadtime_days)
+
+def test_stack_ensfc():
+    ds = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
+    ds_stacked = stack_ensfc(ds)
+    assert 'fc' in ds_stacked.dims
+
+
+def test_combine_s2s_and_reanalysis():
+    # open forecast and reanalysis dataset
+    ds_s2s = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
+    ds_era5 = xr.open_mfdataset('data/era5*.nc')
+    print(ds_s2s)
+    print(ds_era5)
+    # DataArray
+    ds_combined = combine_s2s_and_reanalysis(ds_s2s.u, ds_era5.u)
+    # Dataset
+    ds_combined = combine_s2s_and_reanalysis(ds_s2s, ds_era5)
+    # Dataset with different names
+    ds_combined = combine_s2s_and_reanalysis(ds_s2s, ds_era5.rename(u='u_reanalysis'))
+    # Dataset without stacking to ensfc
+    ds_combined = combine_s2s_and_reanalysis(ds_s2s, ds_era5, ensfc=False)
+    print(ds_combined)
