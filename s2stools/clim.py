@@ -12,7 +12,8 @@ def climatology(
         ndays_clim_filter=7,
         hide_warnings=False,
         groupby="validtime",
-):
+
+dim_number_non_exist=False):
     """
     Compute anomalies from the climatological mean. Deseasonalization is based on hindcasts.
 
@@ -37,6 +38,10 @@ def climatology(
         leaditme=+4 days, leadtime=+5 days, ...; If "validtime", create climatology along same day-of-year, e.g.,
         different forecasts but always for March 03, March 04, March 05
 
+    dim_number_non_exist : bool
+        If True, an ensemble member dimension "number" is added, because it is required for deseasonalization.
+        Defaults to False.
+
     Returns
     -------
     climatology: xr.DataArray or xr.Dataset
@@ -54,11 +59,23 @@ def climatology(
     spread is more sensitive to the leadtime of course than to the day of year.
 
     """
+
+    if dim_number_non_exist:
+        data = data.expand_dims('number').assign_coords(number=[0])
+
+    if isinstance(data, xr.DataArray):
+        aggregation = xarray.core.groupby.DataArrayGroupByAggregations
+    elif isinstance(data, xr.Dataset):
+        aggregation = xarray.core.groupby.DatasetGroupByAggregations
+    else:
+        aggregation = None
+        raise TypeError('aggregation impossible, expected data to be dataset or datarray')
+
     if mean_or_std == "mean":
-        aggregation_func = xarray.core.groupby.DataArrayGroupByAggregations.mean
+        aggregation_func = aggregation.mean
         aggregation_dim = "stacked_reftime_leadtime"
     elif mean_or_std == "std":
-        aggregation_func = xarray.core.groupby.DataArrayGroupByAggregations.std
+        aggregation_func = aggregation.std
         aggregation_dim = ["stacked_reftime_leadtime", "hc_year"]
     else:
         raise ValueError(f"mean_or_std must be 'mean' or 'std', not '{mean_or_std}'")
@@ -181,6 +198,7 @@ def deseasonalize(
         hide_plot=True,
         hide_warnings=False,
         return_clim_lists=False,
+        dim_number_non_exist=False
 ):
     """
     Compute anomalies from the climatological mean. Deseasonalization is based on hindcasts.
@@ -191,18 +209,21 @@ def deseasonalize(
         The raw data.
     window_size : int
         The mean is constructed using all reftimes within this plus-minus-day-interval.
-    standardize : boolean
+    standardize : bool
         If True, compute standardized anomalies.
     ndays_clim_filter : int
         Apply running mean to the climatology.
-    hide_print : boolean
+    hide_print : bool
         If False, print how many reftimes are used for each climatology. Defaults to True.
-    hide_plot : boolean
+    hide_plot : bool
         If False, plot the climatology.
-    hide_warnings : boolean
+    hide_warnings : bool
         ???
-    return_clim_lists : boolean
+    return_clim_lists : bool
         If True, also return the constructed climatologies. If False, only return anomalies.
+    dim_number_non_exist : bool
+        If True, an ensemble member dimension "number" is added, because it is required for deseasonalization.
+        Defaults to False.
 
     Returns
     -------
@@ -224,133 +245,133 @@ def deseasonalize(
     data_by_reftime_list = []
     clim_list = []
     climstd_list = []
-
-    for reftime in data.reftime:
-        reftime = reftime.values.astype("datetime64[D]")
-        window = np.arange(reftime - window_size, reftime + window_size)
-        # hc_reftimes_in_window = (
-        #     data.sel(reftime=np.in1d(data.reftime.values, window))
-        #         .sel(hc_year=-1)
-        #         .dropna("reftime", how="all")
-        #         .reftime.values
-        # )
-        hc_reftimes_in_window = (
-            data.sel(reftime=data.reftime.isin(window))
-            .drop_sel(hc_year=0)
-            .isel(hc_year=0)
-            .reftime  # .values
-        )
-
-        # ***** COMPUTE CLIMATOLOGY *****
-        clim_stacked = (
-            data.sel(reftime=hc_reftimes_in_window, hc_year=(data.hc_year != 0))
-            .mean(["hc_year", "number"])
-            .stack(date=("reftime", "leadtime"))
-        )
-
-        clim = (
-            clim_stacked.assign_coords(
-                days_since_reftime_init=(
-                    "date",
-                    (
-                            clim_stacked.reftime.values
-                            - reftime
-                            + clim_stacked.leadtime.values
-                    ).astype("timedelta64[D]"),
-                )
-            )
-            .unstack()
-            .groupby("days_since_reftime_init")
-            .mean()
-            .rolling(
-                days_since_reftime_init=ndays_clim_filter, center=True, min_periods=1
-            )
-            .mean()
-            .sel(
-                days_since_reftime_init=slice(np.timedelta64(0, "D"), data.leadtime[-1])
-            )
-            .rename(days_since_reftime_init="leadtime")
-        )
-        if len(clim.leadtime) != len(data.leadtime):
-            if not hide_warnings:
-                print(
-                    "WARNING: no climatology available for {} days of reftime {}. Applying interpolation.".format(
-                        len(data.leadtime) - len(clim.leadtime), reftime
-                    )
-                )
-            clim = clim.interp(
-                leadtime=data.leadtime,
-                kwargs={"fill_value": "extrapolate"},
+    with xr.set_options(use_flox=False):
+        for reftime in data.reftime:
+            reftime = reftime.values.astype("datetime64[D]")
+            window = np.arange(reftime - window_size, reftime + window_size)
+            # hc_reftimes_in_window = (
+            #     data.sel(reftime=np.in1d(data.reftime.values, window))
+            #         .sel(hc_year=-1)
+            #         .dropna("reftime", how="all")
+            #         .reftime.values
+            # )
+            hc_reftimes_in_window = (
+                data.sel(reftime=data.reftime.isin(window))
+                .drop_sel(hc_year=0)
+                .isel(hc_year=0)
+                .reftime  # .values
             )
 
-        if not hide_print:
-            print(
-                "climatology for reftime {}: n refs = {}".format(
-                    reftime, len(hc_reftimes_in_window)
-                )
-            )
-        if not hide_plot:
-            clim.plot(label=reftime)
-
-        if standardize:
-            # ***** COMPUTE STD CLIMATOLOGY *****
-
-            climstd_stacked = (
+            # ***** COMPUTE CLIMATOLOGY *****
+            clim_stacked = (
                 data.sel(reftime=hc_reftimes_in_window, hc_year=(data.hc_year != 0))
-                .sel(number=0)
+                .mean(["hc_year", "number"])
                 .stack(date=("reftime", "leadtime"))
             )
 
-            climstd = (
-                climstd_stacked.assign_coords(
+            clim = (
+                clim_stacked.assign_coords(
                     days_since_reftime_init=(
                         "date",
                         (
-                                climstd_stacked.reftime.values.astype("datetime64[D]")
+                                clim_stacked.reftime.values
                                 - reftime
-                                + climstd_stacked.leadtime.values
+                                + clim_stacked.leadtime.values
                         ).astype("timedelta64[D]"),
                     )
                 )
                 .unstack()
                 .groupby("days_since_reftime_init")
-                .std(["stacked_reftime_leadtime", "hc_year"])
+                .mean()
                 .rolling(
-                    days_since_reftime_init=ndays_clim_filter,
-                    center=True,
-                    min_periods=1,
+                    days_since_reftime_init=ndays_clim_filter, center=True, min_periods=1
                 )
                 .mean()
                 .sel(
-                    days_since_reftime_init=slice(
-                        np.timedelta64(0, "D"), data.leadtime[-1]
-                    )
+                    days_since_reftime_init=slice(np.timedelta64(0, "D"), data.leadtime[-1])
                 )
                 .rename(days_since_reftime_init="leadtime")
             )
-
-            if len(climstd.leadtime) != len(data.leadtime):
+            if len(clim.leadtime) != len(data.leadtime):
                 if not hide_warnings:
                     print(
-                        "WARNING: no std climatology available for {} days of reftime {}. Applying interpolation.".format(
-                            len(data.leadtime) - len(climstd.leadtime),
-                            reftime,
+                        "WARNING: no climatology available for {} days of reftime {}. Applying interpolation.".format(
+                            len(data.leadtime) - len(clim.leadtime), reftime
                         )
                     )
-                climstd = climstd.interp(
+                clim = clim.interp(
                     leadtime=data.leadtime,
                     kwargs={"fill_value": "extrapolate"},
                 )
 
-            data_anomstd_oneref = (data.sel(reftime=reftime) - clim) / climstd
-            data_by_reftime_list.append(data_anomstd_oneref)
-            climstd_list.append(climstd)
+            if not hide_print:
+                print(
+                    "climatology for reftime {}: n refs = {}".format(
+                        reftime, len(hc_reftimes_in_window)
+                    )
+                )
+            if not hide_plot:
+                clim.plot(label=reftime)
 
-        else:
-            data_anom_oneref = data.sel(reftime=reftime) - clim
-            data_by_reftime_list.append(data_anom_oneref)
+            if standardize:
+                # ***** COMPUTE STD CLIMATOLOGY *****
 
-        clim_list.append(clim)
+                climstd_stacked = (
+                    data.sel(reftime=hc_reftimes_in_window, hc_year=(data.hc_year != 0))
+                    .sel(number=0)
+                    .stack(date=("reftime", "leadtime"))
+                )
+
+                climstd = (
+                    climstd_stacked.assign_coords(
+                        days_since_reftime_init=(
+                            "date",
+                            (
+                                    climstd_stacked.reftime.values.astype("datetime64[D]")
+                                    - reftime
+                                    + climstd_stacked.leadtime.values
+                            ).astype("timedelta64[D]"),
+                        )
+                    )
+                    .unstack()
+                    .groupby("days_since_reftime_init")
+                    .std(["stacked_reftime_leadtime", "hc_year"])
+                    .rolling(
+                        days_since_reftime_init=ndays_clim_filter,
+                        center=True,
+                        min_periods=1,
+                    )
+                    .mean()
+                    .sel(
+                        days_since_reftime_init=slice(
+                            np.timedelta64(0, "D"), data.leadtime[-1]
+                        )
+                    )
+                    .rename(days_since_reftime_init="leadtime")
+                )
+
+                if len(climstd.leadtime) != len(data.leadtime):
+                    if not hide_warnings:
+                        print(
+                            "WARNING: no std climatology available for {} days of reftime {}. Applying interpolation.".format(
+                                len(data.leadtime) - len(climstd.leadtime),
+                                reftime,
+                            )
+                        )
+                    climstd = climstd.interp(
+                        leadtime=data.leadtime,
+                        kwargs={"fill_value": "extrapolate"},
+                    )
+
+                data_anomstd_oneref = (data.sel(reftime=reftime) - clim) / climstd
+                data_by_reftime_list.append(data_anomstd_oneref)
+                climstd_list.append(climstd)
+
+            else:
+                data_anom_oneref = data.sel(reftime=reftime) - clim
+                data_by_reftime_list.append(data_anom_oneref)
+
+            clim_list.append(clim)
 
     anom = xr.concat(data_by_reftime_list, dim="reftime").transpose(*data.dims)
 
