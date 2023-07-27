@@ -137,7 +137,7 @@ dim_number_non_exist=False):
                     )  # cut climatology to length of forecast
                     .rename(days_since_reftime_init="leadtime")
                 )
-                .assign_coords(reftime=reftime)
+                .assign_coords(reftime=reftime.astype('datetime64[ns]'))
                 .expand_dims("reftime")
             )
 
@@ -166,7 +166,7 @@ dim_number_non_exist=False):
                         leadtime=slice(np.timedelta64(0, "D"), data.leadtime[-1])
                     )  # cut climatology to length of forecast
                 )
-                .assign_coords(reftime=reftime)
+                .assign_coords(reftime=reftime.astype('datetime64[ns]'))
                 .expand_dims("reftime")
             )
         ###
