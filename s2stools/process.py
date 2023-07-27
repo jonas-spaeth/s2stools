@@ -110,14 +110,14 @@ def s2sparser(ds):
         )
 
         ds = ds.assign_coords(
-            leadtime=("time", leadtime_broadcasted),
+            leadtime=("time", leadtime_broadcasted.astype('datetime64[ns]')),
             hc_year=("time", hcy_broadcasted),
         )
 
         ds = ds.set_index(time=["leadtime", "hc_year"])
         ds = ds.assign_coords(validtime=("time", dstime.values))
         ds = ds.unstack()
-    ds = ds.assign_coords(reftime=[reftime])
+    ds = ds.assign_coords(reftime=[reftime.astype('datetime64[ns]')])
     return ds
 
 
