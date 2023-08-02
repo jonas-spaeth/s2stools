@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -7,28 +5,32 @@ import xarray as xr
 
 def download_mjo():
     """
-    Download MJO RMM index from Columbia university: "https://iridl.ldeo.columbia.edu/SOURCES/.BoM/.MJO/.RMM/.phase/T+exch+table-+text+text+skipanyNaN+-table+.html"
+    Download MJO phase and amplitude from Columbia university: "https://iridl.ldeo.columbia.edu/SOURCES/.BoM/.MJO/.RMM/.phase/"
 
     Returns
     -------
-    da : xr.DataArray
-        Madden Julian Oscillation Realtime Multivariate Index
+    da_phase, da_phase : [xr.DataArray, xr.DataArray]
+        Madden Julian Oscillation Realtime Multivariate Index: Phase, Amplitude
     """
-    mjo_phase_html = "https://iridl.ldeo.columbia.edu/SOURCES/.BoM/.MJO/.RMM/.phase/T+exch+table-+text+text+skipanyNaN+-table+.html"
-    raw = pd.read_html(mjo_phase_html)
-    time = pd.to_datetime(raw[0]["Time"]["julian_day"], format="%d %b %Y")
-    phase = raw[0]["phase"]["Unnamed: 1_level_1"].rename("mjo_phase")
+    try:
+        import pydap
+    except ImportError:
+        print("MJO download requires package pydap, which is not installed. Consider: pip install pydap")
+        return xr.DataArray(name='mjo_phase'), xr.DataArray(name='mjo_mag')
+    else:
+        path_amplitude = 'http://iridl.ldeo.columbia.edu/SOURCES/.BoM/.MJO/.RMM/.amplitude/dods'
+        da_amplitude = xr.open_dataset(path_amplitude).amplitude.rename('mjo_mag')
 
-    mjo_phase = xr.DataArray(phase, coords={"time": time})
+        path_phase = 'http://iridl.ldeo.columbia.edu/SOURCES/.BoM/.MJO/.RMM/.phase/dods'
+        da_phase = xr.open_dataset(path_phase).phase.rename('mjo_phase')
 
-    mjo_mag_html = "https://iridl.ldeo.columbia.edu/SOURCES/.BoM/.MJO/.RMM/.amplitude/T+exch+table-+text+text+skipanyNaN+-table+.html"
-    raw = pd.read_html(mjo_mag_html)
-    time = pd.to_datetime(raw[0]["Time"]["julian_day"], format="%d %b %Y")
-    mag = raw[0]["amplitude"]["Unnamed: 1_level_1"].rename("mjo_mag")
+        def time_coordinates(dataarray):
+            julian_days = dataarray["T"].values.astype('int').astype('timedelta64[D]')
+            base_date = np.datetime64('-4713-11-24')  # julian calendar
+            dates = base_date + julian_days
+            return dataarray.rename(T='time').assign_coords(time=dates)
 
-    mjo_mag = xr.DataArray(mag, coords={"time": time})
-
-    return mjo_phase, mjo_mag
+        return [time_coordinates(da) for da in [da_phase, da_amplitude]]
 
 
 def download_enso(interp_daily=False) -> xr.Dataset:
@@ -104,7 +106,7 @@ def download_qbo():
     :func:`download_mjo`, :func:`download_enso`
     """
     path = "https://www.geo.fu-berlin.de/met/ag/strat/produkte/qbo/qbo.dat"
-    dateparse = lambda x: datetime.strptime(x, "%y%m")
+    # dateparse = lambda x: datetime.strptime(x, "%y%m")
     qbo = pd.read_table(
         path,
         skiprows=381,
@@ -122,16 +124,14 @@ def download_qbo():
             "15hPa",
             "10hPa",
         ],
-        date_parser=dateparse,
+        # date_parser=dateparse,
+        date_format="%y%m",
         parse_dates=[0],
     )
-    qbo_xr = qbo.to_xarray()
-    data = (
-        xr.concat([qbo_xr[v] / 10 for v in qbo_xr.data_vars], dim="p")
-        .assign_coords(p=[int(n[:2]) for n in list(qbo_xr.data_vars)])
-        .rename("u")
-        .assign_attrs(units="m/s")
-    )
+    qbo_xr = qbo.to_xarray().to_array('p')
+    # assign pressure coordinates and attributes
+    # divide by 10 to get m/s instead of dm/s
+    data = (qbo_xr / 10).assign_coords(p=[int(str(p[:-3])) for p in qbo_xr.p.values]).rename("u").assign_attrs(units="m/s")
     data["p"] = data.p.assign_attrs(units="hPa", long_name="pressure level")
 
     return data
@@ -165,6 +165,5 @@ def download_indices(enso=True, mjo=True, u60=False, qbo=True):
         raise NotImplemented
         # merge_list.append(load_u60_10hpa())
     if qbo:
-        merge_list += list(download_qbo())
-        # merge_list.append(load_qbo_pcs())
+        merge_list.append(download_qbo())
     return xr.merge(merge_list, join="outer")

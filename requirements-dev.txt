@@ -8,6 +8,7 @@ sphinx
 twine
 dask  # new
 lxml
+pydap  # mjo download
 # These are dependencies of various sphinx extensions for documentation.
 ipython
 numpydoc
