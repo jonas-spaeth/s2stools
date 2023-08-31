@@ -86,3 +86,45 @@ def month_int_to_abbr(months):
     months = np.atleast_1d(months)
     d = {index: month for index, month in enumerate(calendar.month_abbr) if month}
     return [d[m] for m in months]
+
+
+def lat_weighted_spatial_mean(dataarray, lon_name='longitude', lat_name='latitude'):
+    """
+    Spatial average over longitude, latitude. Gridpoints are weighted by cos(lat) to account for different areas on
+    Gaussian grid on a sphere.
+
+    Parameters
+    ----------
+    dataarray (xr.DataArray)
+    lon_name (str) : name of longitude dimension
+    lat_name (str) : name of latitude dimension
+
+    Returns
+    -------
+    weighted_dataarray (xr.DataArray)
+    """
+    weights = np.cos(np.deg2rad(dataarray.latitude))
+    spatial_dims = [d for d in (lon_name, lat_name) if d in dataarray.dims]
+    return dataarray.weighted(weights).mean(spatial_dims)
+
+
+def groupby_quantiles(dataarray, groupby, q, q_dim, labels=None):
+    """
+    xr.core.dataset.Dataset.groupby_bins(..., bins=N) groups the data into N groups which span same interval sizes.
+    This method groups the data into `len(q)` bins, which have equal number of subdatasets in the respective groups.
+
+    Parameters
+    ----------
+    dataarray (xr.Dataset | xr.DataArray) : the data to group
+    groupby (xr.Dataset | xr.DataArray | str) : what to group by
+    q (list) : list of quantiles
+    q_dim (str) : dimension across which quantiles are computed
+    labels ([str]) : labels to put on new groups; asserting len(q) == len(labels)
+
+    Returns
+    -------
+    groupby_object : xarray.core.groupby.DatasetGroupBy | xarray.core.groupby.DataArrayGroupBy
+    """
+    q = groupby.quantile(q, dim=q_dim)
+    q_bins = [-np.inf, *q.values.tolist(), np.inf]
+    return dataarray.groupby_bins(groupby, bins=q_bins, labels=labels)
