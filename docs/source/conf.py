@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath('../s2stools'))
 project = "s2stools"
 copyright = "2023, Jonas Spaeth"
 author = "Jonas Spaeth"
-release = "0.3.0"
+release = "0.3.5"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

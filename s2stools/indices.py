@@ -131,7 +131,9 @@ def download_qbo():
     qbo_xr = qbo.to_xarray().to_array('p')
     # assign pressure coordinates and attributes
     # divide by 10 to get m/s instead of dm/s
-    data = (qbo_xr / 10).assign_coords(p=[int(str(p[:-3])) for p in qbo_xr.p.values]).rename("u").assign_attrs(units="m/s")
+    data = (qbo_xr / 10).assign_coords(p=[int(str(p[:-3])) for p in qbo_xr.p.values]).rename("u").assign_attrs(
+        units="m/s"
+    )
     data["p"] = data.p.assign_attrs(units="hPa", long_name="pressure level")
 
     return data
@@ -168,7 +170,19 @@ def download_indices(enso=True, mjo=True, u60=False, qbo=True):
         merge_list.append(download_qbo())
     return xr.merge(merge_list, join="outer")
 
-def nao():
+
+def nao() -> xr.DataArray:
+    """
+    Downloading the North Atlantic Oscillation index provided by NCEP.
+
+    Returns
+    -------
+    nao_index : xr.DataArray
+
+    References
+    -----
+    https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.index.b500101.current.ascii
+    """
     path = (
         "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.index.b500101.current.ascii"
     )

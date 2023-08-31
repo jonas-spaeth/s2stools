@@ -32,3 +32,6 @@ def test_clim():
     # test different parameter settings
     _ = climatology(da, window_size=1, ndays_clim_filter=1, groupby="leadtime")
     _ = climatology(da, mean_or_std='std')
+
+    # test climatology if dim number not existing
+    _ = climatology(da.mean("number"))

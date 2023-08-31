@@ -90,8 +90,10 @@ def zonal_wavenumber_decomposition(data, k_aggregates=True):
         else:
             return data_fft
     else:
-        assert isinstance(k_aggregates,
-                          dict), f"unsupported type for k_aggregates (needs to be one of (bool, dict), not {type(k_aggregates)})"
+        assert isinstance(
+            k_aggregates,
+            dict
+            ), f"unsupported type for k_aggregates (needs to be one of (bool, dict), not {type(k_aggregates)})"
 
     # k aggregation
     return aggregate_k(data_fft, k_aggregates)
@@ -293,21 +295,13 @@ def css(forecast_anomalies, observation_anomalies, dim):
     the patterns of variability present in the observed data. It is calculated as the correlation
     coefficient between forecast anomalies and observation anomalies.
 
-    Parameters:
-    forecast_anomalies (xarray.DataArray): An xarray DataArray containing forecast anomalies.
-    observation_anomalies (xarray.DataArray): An xarray DataArray containing observation anomalies.
-    dim (str): The dimension along which to calculate the CSS.
+    Args:
+        forecast_anomalies (xarray.DataArray): An xarray DataArray containing forecast anomalies.
+        observation_anomalies (xarray.DataArray): An xarray DataArray containing observation anomalies.
+        dim (str): The dimension along which to calculate the CSS.
 
     Returns:
-    xarray.DataArray: The Correlation Skill Score (CSS) between forecast anomalies and observation anomalies.
-
-    Notes:
-    - Both forecast_anomalies and observation_anomalies should have the same dimensions.
-    - CSS is calculated as the mean correlation coefficient between forecast anomalies and observation anomalies
-      along the specified dimension.
-
-    Example:
-    css_score = css(forecast_anomalies, observation_anomalies, dim="time")
+        xarray.DataArray: The Correlation Skill Score (CSS) between forecast anomalies and observation anomalies.
     """
     n = len(forecast_anomalies[dim])
     numerator = (forecast_anomalies * observation_anomalies).mean(dim)

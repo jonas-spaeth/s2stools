@@ -12,8 +12,7 @@ def climatology(
         ndays_clim_filter=7,
         hide_warnings=False,
         groupby="validtime",
-
-dim_number_non_exist=False):
+        dim_number_non_exist=False):
     """
     Compute anomalies from the climatological mean. Deseasonalization is based on hindcasts.
 
@@ -39,6 +38,7 @@ dim_number_non_exist=False):
         different forecasts but always for March 03, March 04, March 05
 
     dim_number_non_exist : bool
+        Depracated, because it is now automatically checked whether adding dimension "number" is neceesary.
         If True, an ensemble member dimension "number" is added, because it is required for deseasonalization.
         Defaults to False.
 
@@ -60,6 +60,8 @@ dim_number_non_exist=False):
 
     """
 
+    if "number" not in data.dims:
+        dim_number_non_exist = True
     if dim_number_non_exist:
         data = data.expand_dims('number').assign_coords(number=[0])
 
@@ -121,7 +123,7 @@ dim_number_non_exist=False):
                     )  # days_since_reftime_init measures timedelta relative to initialization
                     .unstack()
                     .groupby("days_since_reftime_init")
-                    .apply(
+                    .map(
                         aggregation_func, dim=aggregation_dim
                     )  # average or standardize all days that have validtime, e.g., reftime + 2D
                     .rolling(
@@ -153,7 +155,7 @@ dim_number_non_exist=False):
                 (
                     clim_stacked.unstack()
                     .groupby("leadtime")
-                    .apply(
+                    .map(
                         aggregation_func, dim=aggregation_dim
                     )  # average or standardize all days that have validtime, e.g., reftime + 2D
                     .rolling(
