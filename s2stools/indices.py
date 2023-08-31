@@ -167,3 +167,17 @@ def download_indices(enso=True, mjo=True, u60=False, qbo=True):
     if qbo:
         merge_list.append(download_qbo())
     return xr.merge(merge_list, join="outer")
+
+def nao():
+    path = (
+        "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.index.b500101.current.ascii"
+    )
+    nao_index = pd.read_table(
+        path, names=["year", "month", "day", "nao"], delim_whitespace=True
+    )
+    nao_index = nao_index[~np.isnan(nao_index.nao)]
+    nao_index["time"] = pd.to_datetime(nao_index[["year", "month", "day"]])
+    nao_index = nao_index.drop(columns=["year", "month", "day"])
+    nao_index = nao_index.set_index("time")
+    nao_index = nao_index.to_xarray()
+    return nao_index
