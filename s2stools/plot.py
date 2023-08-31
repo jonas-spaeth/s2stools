@@ -5,8 +5,6 @@ import numpy as np
 import xarray as xr
 import matplotlib.patches as mpatches
 
-# from cartopy.util import add_cyclic_point
-
 
 def xaxis_unit_days(ax=None, multiple=7, minor_multiple=1):
     """
@@ -102,7 +100,6 @@ def cyclic_xyz(field, longitude_name="longitude", latitude_name="latitude"):
         lat = field.latitude
         adj_field, adj_lon = add_cyclic_point(field, coord=lon)
         return adj_lon, lat, adj_field
-
 
 
 def xlim_days(ax=None, leftlim=None, rightlim=None):
@@ -301,6 +298,7 @@ def add_map(ax, **kwargs):
     plotting_kwargs = default_kwargs | kwargs
     ax.format(**plotting_kwargs)
 
+
 def add_box(dict_lon_lat_slice, ax, **kwargs):
     """
     Add a box to a map projection plot.
@@ -321,7 +319,6 @@ def add_box(dict_lon_lat_slice, ax, **kwargs):
     --------
     Requires ``cartopy`` (which is not a formal dependency of ``s2stools``.
     """
-
 
     try:
         import cartopy.crs as ccrs
@@ -348,4 +345,52 @@ def add_box(dict_lon_lat_slice, ax, **kwargs):
                 transform=ccrs.PlateCarree(),
                 **plot_kwargs
             )
+        )
+
+
+def atlantic_map_subplot_kws(lonlim=None, latlim=None, lat0=None, lon0=None):
+    if lonlim is None:
+        lonlim = (-100, 30)
+
+    if latlim is None:
+        latlim = (90, 30)
+
+    if lat0 is None:
+        lat0 = 30
+
+    if lon0 is None:
+        lon0 = -20
+
+    kws = dict(
+        proj='nsper',
+        proj_kw=dict(lat0=lat0, lon0=lon0),
+        lonlim=lonlim,
+        latlim=latlim
+    )
+
+    return kws
+
+
+def cmap_spread():
+    try:
+        import proplot as pplt
+    except:
+        ImportError("requires proplot. consider: pip install proplot")
+    else:
+        return pplt.Colormap(
+            "Blues5_r", (1, 1, 1, 0), "Reds2", ratios=[3, 1, 3], name="cmap_opaque"
+        )
+
+
+def cmap_hotcold():
+    try:
+        import proplot as pplt
+    except:
+        ImportError("requires proplot. consider: pip install proplot")
+    else:
+        return pplt.Colormap(
+            pplt.Colormap("HotCold_r", right=0.5),
+            (1, 1, 1, 0),
+            pplt.Colormap("HotCold_r", left=0.5),
+            ratios=[20, 1, 20],
         )
