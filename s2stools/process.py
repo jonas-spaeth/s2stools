@@ -52,7 +52,10 @@ def s2sparser(ds):
 
     ### get reftime (needed for relative hindcast year)
     inferred_reftime = _infer_reftime_from_filename(ds.encoding["source"])
-
+    
+    ### get lead time resolution
+    lt_res = "h" if (((ds.time[1] - ds.time[0]) / np.timedelta64(1, "h")) < 24) else "D"
+    
     ### control or perturbed forecast?
 
     if "number" in ds.dims:
@@ -62,7 +65,7 @@ def s2sparser(ds):
 
     ### realtime forecast or hindcast?
 
-    max_timesteps_of_one_forecast = 100
+    max_timesteps_of_one_forecast = 4*47  # enough for 6hrly data of ecmwf
     dstime = ds.time
 
     is_realtime = len(dstime) < max_timesteps_of_one_forecast
@@ -77,11 +80,11 @@ def s2sparser(ds):
         ds = ds.assign_coords(hc_year=[0])
     else:
         # --> hindcast
-        delta_t = np.diff(ds.time).astype("timedelta64[D]")
+        delta_t = np.diff(ds.time).astype(f"timedelta64[{lt_res}]")
         min_days_between_hc_years = 10
         idx_large_delta_t = (
                 np.argwhere(
-                    delta_t > np.timedelta64(min_days_between_hc_years, "D")
+                    delta_t > np.timedelta64(min_days_between_hc_years, lt_res)
                 ).ravel()
                 + 1
         )
@@ -90,7 +93,7 @@ def s2sparser(ds):
         # determine leadtime
         time_of_first_fc = ds.time.isel(time=slice(0, idx_large_delta_t[0]))
         nt_onefc = len(time_of_first_fc)
-        leadtime = (time_of_first_fc - ds.time[0]).values.astype("timedelta64[D]")
+        leadtime = (time_of_first_fc - ds.time[0]).values.astype(f"timedelta64[{lt_res}]")
 
         # reshape time and determine hindcast years
         n_hcy = len(ds.time) // nt_onefc
@@ -133,7 +136,7 @@ def _infer_reftime_from_filename(filepath):
     # split points
     filename_underscore_splitted_point_splitted = [
         i.split('.') for i in filename_underscore_splitted
-    ]
+    ][::-1]  # list reversing is because date is usually last, and e.g. t2m in the filename can lead to mis-parsing
     filename_underscore_splitted_point_splitted = _flatten_list(filename_underscore_splitted_point_splitted)
 
     # try to parse reftime from one of these items
