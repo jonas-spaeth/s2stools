@@ -283,3 +283,35 @@ def running_mean(dataarray, dim, window_sizes):
         ),
         dask="allowed",
     ).assign_coords(window_size=window_sizes)
+
+
+def css(forecast_anomalies, observation_anomalies, dim):
+    """
+    Calculate the Correlation Skill Score (CSS) between forecast anomalies and observation anomalies.
+
+    The Correlation Skill Score (CSS) is a measure of the skill of a forecast model in reproducing
+    the patterns of variability present in the observed data. It is calculated as the correlation
+    coefficient between forecast anomalies and observation anomalies.
+
+    Parameters:
+    forecast_anomalies (xarray.DataArray): An xarray DataArray containing forecast anomalies.
+    observation_anomalies (xarray.DataArray): An xarray DataArray containing observation anomalies.
+    dim (str): The dimension along which to calculate the CSS.
+
+    Returns:
+    xarray.DataArray: The Correlation Skill Score (CSS) between forecast anomalies and observation anomalies.
+
+    Notes:
+    - Both forecast_anomalies and observation_anomalies should have the same dimensions.
+    - CSS is calculated as the mean correlation coefficient between forecast anomalies and observation anomalies
+      along the specified dimension.
+
+    Example:
+    css_score = css(forecast_anomalies, observation_anomalies, dim="time")
+    """
+    n = len(forecast_anomalies[dim])
+    numerator = (forecast_anomalies * observation_anomalies).mean(dim)
+    var_fc = (forecast_anomalies ** 2).mean(dim)
+    var_obs = (observation_anomalies ** 2).mean(dim)
+    denominator = np.sqrt(var_fc * var_obs)
+    return numerator / denominator
