@@ -156,6 +156,7 @@ def eddy_flux_spectral(a, b, aggregate_k=None, verify_that_sum_over_k_is_total_f
 def aggregate_k(data, rule=None):
     """
     Aggregate certain k's to a wavenumber range, corresponding to the sum.
+
     Parameters
     ----------
     data : xr.Dataset or xr.DataArray
@@ -309,3 +310,35 @@ def css(forecast_anomalies, observation_anomalies, dim):
     var_obs = (observation_anomalies ** 2).mean(dim)
     denominator = np.sqrt(var_fc * var_obs)
     return numerator / denominator
+
+
+def register_sample_variance_aggregation_for_flox():
+    try:
+        import flox.xarray
+        from flox.xarray import Aggregation
+        import numpy_groupies as npg
+    except:
+        print("This function requires flox and numpy_groupies. Consider: pip install flox numpy_groupies")
+    else:
+        def sample_variance(
+                group_idx, array, *, axis=-1, size=None, fill_value=np.nan, dtype=None
+        ):
+            return npg.aggregate_numpy.aggregate(
+                group_idx,
+                array,
+                func=np.var,
+                axis=axis,
+                size=size,
+                fill_value=fill_value,
+                dtype=dtype,
+                ddof=1,
+            )
+
+        agg_sample_variance = Aggregation(
+            name="sample_variance",
+            numpy=sample_variance,
+            fill_value=-1,
+            chunk=None,
+            combine=None,
+        )
+        return agg_sample_variance

@@ -18,6 +18,7 @@ def list_to_string(l):
 def add_years(dt64, years):
     """
     Add year to date.
+
     Args:
         dt64 ([datetime64], datetime64): date to change
         years ([int], int): how many years to add. If scalar, add same year to each date, if list then years must have same shape as dt64.
@@ -61,7 +62,8 @@ def add_years(dt64, years):
 
 def to_timedelta64(a, assume="D"):
     """
-    Assume
+    Convert to numpy timedelta64
+
     Args:
         a (int or np.timedelta64): timedelta
         assume (): timedelta64 format that is assumed if a is of type int.

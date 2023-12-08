@@ -65,6 +65,11 @@ def climatology(
     if dim_number_non_exist:
         data = data.expand_dims('number').assign_coords(number=[0])
 
+    if 0 not in data.hc_year:
+        print("Data seems to include no realtime forecasts. No problem, just to let you know.")
+        hc_year = data.hc_year.values.tolist()
+        data = data.reindex(hc_year=hc_year + [0])
+
     if isinstance(data, xr.DataArray):
         aggregation = xarray.core.groupby.DataArrayGroupByAggregations
     elif isinstance(data, xr.Dataset):
@@ -108,69 +113,80 @@ def climatology(
             clim_stacked = clim_stacked.sel(number=0)
 
         # compute climatology
-        if groupby == "validtime":
-            clim = (
-                (
-                    clim_stacked.assign_coords(
-                        days_since_reftime_init=(
-                            "date",
-                            (
-                                    clim_stacked.reftime.values
-                                    - reftime
-                                    + clim_stacked.leadtime.values
-                            ).astype("timedelta64[D]"),
+        try:
+            if groupby == "validtime":
+                warn("If you dont't know what you are doing you should better use groupby='leadtime'.", Warning)
+                clim = (
+                    (
+                        clim_stacked.assign_coords(
+                            days_since_reftime_init=(
+                                "date",
+                                (
+                                        clim_stacked.reftime.values
+                                        - reftime
+                                        + clim_stacked.leadtime.values
+                                ).astype("timedelta64[D]"),
+                            )
+                        )  # days_since_reftime_init measures timedelta relative to initialization
+                        .unstack()
+                        .groupby("days_since_reftime_init")
+                        .map(
+                            aggregation_func, dim=aggregation_dim
+                        )  # average or standardize all days that have validtime, e.g., reftime + 2D
+                        .rolling(
+                            days_since_reftime_init=ndays_clim_filter,
+                            center=True,
+                            min_periods=1,
                         )
-                    )  # days_since_reftime_init measures timedelta relative to initialization
-                    .unstack()
-                    .groupby("days_since_reftime_init")
-                    .map(
-                        aggregation_func, dim=aggregation_dim
-                    )  # average or standardize all days that have validtime, e.g., reftime + 2D
-                    .rolling(
-                        days_since_reftime_init=ndays_clim_filter,
-                        center=True,
-                        min_periods=1,
+                        .mean()  # rolling mean
+                        .sel(
+                            days_since_reftime_init=slice(
+                                np.timedelta64(0, "D"), data.leadtime[-1]
+                            )
+                        )  # cut climatology to length of forecast
+                        .rename(days_since_reftime_init="leadtime")
                     )
-                    .mean()  # rolling mean
-                    .sel(
-                        days_since_reftime_init=slice(
-                            np.timedelta64(0, "D"), data.leadtime[-1]
+                    .assign_coords(reftime=reftime.astype('datetime64[ns]'))
+                    .expand_dims("reftime")
+                )
+
+            ### remove
+            # compute climatology 2
+            if groupby == "leadtime":
+                if mean_or_std == "mean":
+                    aggregation_dim = "reftime"
+                elif mean_or_std == "std":
+                    aggregation_dim = ["reftime", "hc_year"]
+
+                clim = (
+                    (
+                        clim_stacked.unstack()
+                        .groupby("leadtime")
+                        .map(
+                            aggregation_func, dim=aggregation_dim
+                        )  # average or standardize all days that have validtime, e.g., reftime + 2D
+                        .rolling(
+                            leadtime=ndays_clim_filter,
+                            center=True,
+                            min_periods=1,
                         )
-                    )  # cut climatology to length of forecast
-                    .rename(days_since_reftime_init="leadtime")
-                )
-                .assign_coords(reftime=reftime.astype('datetime64[ns]'))
-                .expand_dims("reftime")
-            )
-
-        ### remove
-        # compute climatology 2
-        if groupby == "leadtime":
-            if mean_or_std == "mean":
-                aggregation_dim = "reftime"
-            elif mean_or_std == "std":
-                aggregation_dim = ["reftime", "hc_year"]
-
-            clim = (
-                (
-                    clim_stacked.unstack()
-                    .groupby("leadtime")
-                    .map(
-                        aggregation_func, dim=aggregation_dim
-                    )  # average or standardize all days that have validtime, e.g., reftime + 2D
-                    .rolling(
-                        leadtime=ndays_clim_filter,
-                        center=True,
-                        min_periods=1,
+                        .mean()  # rolling mean
+                        .sel(
+                            leadtime=slice(np.timedelta64(0, "D"), data.leadtime[-1])
+                        )  # cut climatology to length of forecast
                     )
-                    .mean()  # rolling mean
-                    .sel(
-                        leadtime=slice(np.timedelta64(0, "D"), data.leadtime[-1])
-                    )  # cut climatology to length of forecast
+                    .assign_coords(reftime=reftime.astype('datetime64[ns]'))
+                    .expand_dims("reftime")
                 )
-                .assign_coords(reftime=reftime.astype('datetime64[ns]'))
-                .expand_dims("reftime")
-            )
+        except AttributeError as e:
+            # Catch AttributeError and raise a warning with custom text
+            custom_warning_text = ("\n\nThe error regarding the '_obj' attribute is typically raised when using "
+                                   "flox. Consider using\n\n"
+                                   "with xr.set_options(use_flox=False):\n\ts2stools.clim.climatology(...)\n")
+            warn(custom_warning_text, Warning)
+
+            # Re-raise the original AttributeError
+            raise e
         ###
 
         if len(clim.leadtime) != len(data.leadtime):
