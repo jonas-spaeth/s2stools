@@ -65,7 +65,7 @@ def s2sparser(ds):
 
     ### realtime forecast or hindcast?
 
-    max_timesteps_of_one_forecast = 4*47  # enough for 6hrly data of ecmwf
+    max_timesteps_of_one_forecast = 4 * 47  # enough for 6hrly data of ecmwf
     dstime = ds.time
 
     is_realtime = len(dstime) < max_timesteps_of_one_forecast
@@ -421,6 +421,27 @@ def stack_ensfc(d, reset_index=True):
         return d.stack(fc=("reftime", "hc_year")).reset_index("fc")
     else:
         return d.stack(fc=("reftime", "hc_year"))
+
+
+def reft_hc_year_to_fc_init_date(s2s_data):
+    """
+    Go from dimensions (``reftime``, ``hc_year``) to dimension ``fc_init_date``.
+    Parameters
+    ----------
+    d: xr.DataArray | xr.Dataset
+
+    Returns
+    -------
+    data : xr.DataArray | xr.Dataset
+
+    """
+    s2s_data = s2s_data.assign_coords(
+        fc_init_date=(("reftime", "hc_year"), s2s_data.isel(
+            leadtime=0).validtime.values))  # create new coordinate fc_init_date containing reftime and hc_year
+
+    data_stacked = s2s_data.stack(fc=("reftime", "hc_year"))
+
+    return data_stacked.swap_dims({"fc": "fc_init_date"}).drop('fc')
 
 
 def combine_s2s_and_reanalysis(s2s, reanalysis, ensfc=True):
