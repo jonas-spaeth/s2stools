@@ -6,13 +6,13 @@ from warnings import warn
 
 
 def climatology(
-        data,
-        window_size=15,
-        mean_or_std="mean",
-        ndays_clim_filter=7,
-        hide_warnings=False,
-        groupby="validtime",
-        dim_number_non_exist=False):
+        data: xr.DataArray | xr.Dataset,
+        window_size: int = 15,
+        mean_or_std: str = "mean",
+        ndays_clim_filter: int = 7,
+        hide_warnings: bool = False,
+        groupby: str = "validtime",
+        dim_number_non_exist: bool = False):
     """
     Compute anomalies from the climatological mean. Deseasonalization is based on hindcasts.
 
