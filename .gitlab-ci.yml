@@ -1,5 +1,4 @@
 # upload to test pypi when a tagged version is created
-
 stages:
   - release
 
@@ -12,3 +11,10 @@ release:
     - twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing --verbose dist/* -u __token__ -p ${TEST_PYPI_API_TOKEN}
   only:
     - tags
+
+format-job:
+  stage: .pre
+  image: python:latest
+  script:
+      - pip install black
+      - black src
