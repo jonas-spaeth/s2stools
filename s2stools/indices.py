@@ -15,20 +15,24 @@ def download_mjo():
     try:
         import pydap
     except ImportError:
-        print("MJO download requires package pydap, which is not installed. Consider: pip install pydap")
-        return xr.DataArray(name='mjo_phase'), xr.DataArray(name='mjo_mag')
+        print(
+            "MJO download requires package pydap, which is not installed. Consider: pip install pydap"
+        )
+        return xr.DataArray(name="mjo_phase"), xr.DataArray(name="mjo_mag")
     else:
-        path_amplitude = 'http://iridl.ldeo.columbia.edu/SOURCES/.BoM/.MJO/.RMM/.amplitude/dods'
-        da_amplitude = xr.open_dataset(path_amplitude).amplitude.rename('mjo_mag')
+        path_amplitude = (
+            "http://iridl.ldeo.columbia.edu/SOURCES/.BoM/.MJO/.RMM/.amplitude/dods"
+        )
+        da_amplitude = xr.open_dataset(path_amplitude).amplitude.rename("mjo_mag")
 
-        path_phase = 'http://iridl.ldeo.columbia.edu/SOURCES/.BoM/.MJO/.RMM/.phase/dods'
-        da_phase = xr.open_dataset(path_phase).phase.rename('mjo_phase')
+        path_phase = "http://iridl.ldeo.columbia.edu/SOURCES/.BoM/.MJO/.RMM/.phase/dods"
+        da_phase = xr.open_dataset(path_phase).phase.rename("mjo_phase")
 
         def time_coordinates(dataarray):
-            julian_days = dataarray["T"].values.astype('int').astype('timedelta64[D]')
-            base_date = np.datetime64('-4713-11-24')  # julian calendar
+            julian_days = dataarray["T"].values.astype("int").astype("timedelta64[D]")
+            base_date = np.datetime64("-4713-11-24")  # julian calendar
             dates = base_date + julian_days
-            return dataarray.rename(T='time').assign_coords(time=dates)
+            return dataarray.rename(T="time").assign_coords(time=dates)
 
         return [time_coordinates(da) for da in [da_phase, da_amplitude]]
 
@@ -128,11 +132,14 @@ def download_qbo():
         date_format="%y%m",
         parse_dates=[0],
     )
-    qbo_xr = qbo.to_xarray().to_array('p')
+    qbo_xr = qbo.to_xarray().to_array("p")
     # assign pressure coordinates and attributes
     # divide by 10 to get m/s instead of dm/s
-    data = (qbo_xr / 10).assign_coords(p=[int(str(p[:-3])) for p in qbo_xr.p.values]).rename("u").assign_attrs(
-        units="m/s"
+    data = (
+        (qbo_xr / 10)
+        .assign_coords(p=[int(str(p[:-3])) for p in qbo_xr.p.values])
+        .rename("u")
+        .assign_attrs(units="m/s")
     )
     data["p"] = data.p.assign_attrs(units="hPa", long_name="pressure level")
 
@@ -183,9 +190,7 @@ def nao() -> xr.DataArray:
     -----
     https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.index.b500101.current.ascii
     """
-    path = (
-        "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.index.b500101.current.ascii"
-    )
+    path = "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.index.b500101.current.ascii"
     nao_index = pd.read_table(
         path, names=["year", "month", "day", "nao"], delim_whitespace=True
     )

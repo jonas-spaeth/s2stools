@@ -1,7 +1,8 @@
-# upload to test pypi when a tagged version is created
-
 stages:
   - release
+  - format
+  - test
+  - install
 
 release:
   stage: release
@@ -12,3 +13,38 @@ release:
     - twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing --verbose dist/* -u __token__ -p ${TEST_PYPI_API_TOKEN}
   only:
     - tags
+
+format:
+  stage: format
+  image: python:latest
+  script:
+    - pip install black
+    - pip install "black[jupyter]"
+    - black --check .
+  only:
+    - main
+    - development
+    - setup-ci
+
+test:
+  stage: test
+  image: python:latest
+  script:
+    - pip install -r requirements.txt
+    - pip install -r requirements-dev.txt
+    - pytest tests/
+  only:
+    - main
+    - development
+    - setup-ci
+
+install:
+  stage: install
+  image: python:latest
+  script:
+    - pip install s2stools
+    - python -c "import s2stools"
+  only:
+    - main
+    - development
+    - setup-ci

@@ -25,7 +25,7 @@ def xaxis_unit_days(ax=None, multiple=7, minor_multiple=1):
 
     # Function that formats the axis labels
     def timeTicks(x, pos):
-        seconds = x / 10 ** 9  # convert nanoseconds to seconds
+        seconds = x / 10**9  # convert nanoseconds to seconds
         # create datetime object because its string representation is alright
         d = datetime.timedelta(seconds=seconds)
         return str(d.days)
@@ -201,7 +201,7 @@ def fill_between(dataarray, x, y, ax=None, ci=None, **kwargs):
 
 
 def plot_dots_where(
-        dataarray, condition, every_nth_lon=1, every_nth_lat=1, **scatter_kws
+    dataarray, condition, every_nth_lon=1, every_nth_lat=1, **scatter_kws
 ):
     """
     Scatter Points where condition is fulfilled.
@@ -343,7 +343,7 @@ def add_box(dict_lon_lat_slice, ax, **kwargs):
                 width=width,
                 height=height,
                 transform=ccrs.PlateCarree(),
-                **plot_kwargs
+                **plot_kwargs,
             )
         )
 
@@ -362,24 +362,43 @@ def atlantic_map_subplot_kws(lonlim=None, latlim=None, lat0=None, lon0=None):
         lon0 = -20
 
     kws = dict(
-        proj='nsper',
-        proj_kw=dict(lat0=lat0, lon0=lon0),
-        lonlim=lonlim,
-        latlim=latlim
+        proj="nsper", proj_kw=dict(lat0=lat0, lon0=lon0), lonlim=lonlim, latlim=latlim
     )
 
     return kws
 
 
-def cmap_spread():
+def cmap_spread(less_dark_blue=0, less_dark_red=0):
+    """
+    Colormap that I use often for ensemble variance anomalies.
+
+    Parameters
+    ----------
+    less_dark_blue : float
+        If the blue is too dark, setting this parameter to >0 but <.5 results in less dark blue.
+    less_dark_red : float
+        If the red is too dark, setting this parameter to >0 but <.5 results in less dark red.
+
+    Returns
+    -------
+    pplt.Colormap
+    """
     try:
         import proplot as pplt
     except:
         ImportError("requires proplot. consider: pip install proplot")
     else:
-        return pplt.Colormap(
+        cm = pplt.Colormap(
             "Blues5_r", (1, 1, 1, 0), "Reds2", ratios=[3, 1, 3], name="cmap_opaque"
         )
+        if (less_dark_red == 0) & (less_dark_blue == 0):
+            return cm
+        else:
+            return pplt.Colormap(
+                pplt.Colormap(cm, left=less_dark_blue, right=0.45),
+                pplt.Colormap(cm, left=0.55, right=1 - less_dark_red),
+                ratios=[1, 1],
+            )
 
 
 def cmap_hotcold():
@@ -394,3 +413,172 @@ def cmap_hotcold():
             pplt.Colormap("HotCold_r", left=0.5),
             ratios=[20, 1, 20],
         )
+
+
+def legend_colored_labels_no_lines(ax, fontweight="bold", **kwargs):
+    """
+    Similar to `ax.legend()`, but instead of drawing lines and putting labels next to them, just write the text in the
+    right color.
+
+    Parameters
+    ----------
+    ax : matplotlib axis or proplot axis
+    fontweight : str
+        Defaults to "bold".
+    kwargs : dict
+        additional keyword arguments passed to ax.legend()
+
+    Returns
+    -------
+    legend
+    """
+    default_kwargs = dict(columnspacing=1, handletextpad=-2)
+    kwargs = default_kwargs | kwargs
+    legend = ax.legend(**kwargs)
+
+    # Get the legend handles and labels
+    handles = legend.legendHandles
+    labels = [text.get_text() for text in legend.get_texts()]
+
+    # Remove the lines from the legend
+    for handle in legend.legendHandles:
+        handle.set_visible(False)
+
+    # Set the text color of legend labels to match the colors of the lines
+    for text, handle in zip(legend.get_texts(), handles):
+        if isinstance(handle, plt.Line2D):
+            text.set_color(handle.get_color())
+        elif isinstance(handle, plt.Rectangle):
+            text.set_color(handle.get_facecolor())
+
+        # Set the font weight
+        text.set_fontweight(fontweight)
+
+    return legend
+
+
+def set_xticks_with_colored_labels(ax, xticks, xticklabels, colors, fontweight="bold"):
+    """
+    Set x-axis ticks with colored labels.
+
+    Parameters
+    ----------
+    ax : axis
+        The axis object
+    xticks : list
+    xticklabels : list
+    colors : list
+    fontweight : str
+        Defaults to "bold"
+
+    Returns
+    -------
+    None
+    """
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(xticklabels, weight=fontweight)
+
+    for i, label in enumerate(ax.get_xticklabels()):
+        label.set_color(colors[i])
+        label.set_fontweight(fontweight)
+
+
+def set_yticks_with_colored_labels(ax, yticks, yticklabels, colors, fontweight="bold"):
+    """
+    Set x-axis ticks with colored labels.
+
+    Parameters
+    ----------
+    ax : axis
+        The axis object
+    yticks : list
+    yticklabels : list
+    colors : list
+    fontweight : str
+        Defaults to "bold"
+
+    Returns
+    -------
+    None
+    """
+    ax.set_yticks(yticks)
+    ax.set_yticklabels(yticklabels, weight=fontweight)
+
+    for i, label in enumerate(ax.get_yticklabels()):
+        label.set_color(colors[i])
+        label.set_fontweight(fontweight)
+
+
+def add_map_inset(
+    ax,
+    loc="ul",
+    size=0.3,
+    proj="cyl",
+    lonlim=(-180, 180),
+    latlim=(0, 90),
+    inset_kw={},
+    draw_box=None,
+    box_kw={},
+    format_kw={},
+):
+    """
+    Add a small map to an existing axis. Designed to indicate geographic location of some other analysis.
+
+    Parameters
+    ----------
+    ax : proplot.axes.Axes
+        axis to which map should be added
+    loc : str
+        location of map, must be one of "ul", "ur", "ll", "lr"
+    size : float
+        size of map in relative units of axis object, defaults to 0.3.
+    proj : str
+        map projection
+    lonlim : 2-tuple of float
+        longitude limits for map
+    latlim : 2-tuple of float
+        latitude limits for map
+    inset_kw : dict
+        Addictional keyword arguments passed to ax.inset()
+    draw_box : dict
+        Dictionary of form {'longitude': slice(lon1, lon2), 'latitude': slice(lat1, lat2)} corresponding to location of
+        box. Defaults to None, in which case no box is drawn.
+    box_kw : dict
+        Addictional keyword arguments passed to s2stools.plot.add_box()
+    format_kw : dict
+        Addictional keyword arguments passed to ax.format()
+
+    Returns
+    -------
+    proplot axis of inset
+    """
+
+    delta = 0.01
+    width = size
+    height = size * 0.75
+    if loc == "ul":
+        bounds = (delta, 1 - height - delta, width, height)
+    elif loc == "ur":
+        bounds = (1 - width - delta, 1 - height - delta, width, height)
+    elif loc == "ll":
+        bounds = (delta, delta, width, height)
+    elif loc == "lr":
+        bounds = (1 - width - delta, delta, width, height)
+    else:
+        raise ValueError("loc must be one of 'ul', 'ur', 'll', 'lr'")
+
+    inset_kw_default = dict(
+        bounds=bounds, proj=proj, lonlim=lonlim, latlim=latlim, zorder=-5
+    )
+    inset_kw = inset_kw_default | inset_kw
+    ax_inset = ax.inset(**inset_kw)
+    if add_box:
+        assert isinstance(draw_box, dict), (
+            "add_box must be dictionary of form"
+            "{'longitude': slice(lon1, lon2), 'latitude': slice(lat1, lat2)}"
+        )
+        add_box(draw_box, ax_inset, **box_kw)
+    format_kw_default = dict(coast=True, lw=0, grid=False)
+    format_kw = format_kw_default | format_kw
+    ax_inset.format(**format_kw)
+    return ax_inset
