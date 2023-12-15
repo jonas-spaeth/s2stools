@@ -1,5 +1,7 @@
 stages:
   - release
+  - format
+  - test
 
 release:
   stage: release
@@ -11,13 +13,15 @@ release:
   only:
     - tags
 
-formatting:
+format:
+  stage: format
   image: python:latest
   script:
     - pip install black
     - black --check .
 
-testing:
+test:
+  stage: test
   image: python:latest
   script:
     - pip install -r requirements.txt
