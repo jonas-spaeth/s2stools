@@ -2,6 +2,7 @@ stages:
   - release
   - format
   - test
+  - install
 
 release:
   stage: release
@@ -28,3 +29,10 @@ test:
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
     - pytest tests/
+
+install:
+    stage: install
+    image: python:latest
+    script:
+        - pip install s2stools
+        - python -c "import s2stools"
