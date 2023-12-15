@@ -10,6 +10,8 @@ s2stools
 .. image:: https://img.shields.io/pypi/v/s2stools.svg
     :target: https://img.shields.io/pypi/v/s2stools
 
+.. image:: https://gitlab.lrz.de/ru35hub/stos/badges/setup-ci/pipeline.svg
+    :target: https://gitlab.lrz.de/ru35hub/stos/-/pipelines
 
 Documentation
 -------------
