@@ -24,6 +24,7 @@ format:
   only:
     - main
     - development
+    - setup-ci
 
 test:
   stage: test
@@ -35,6 +36,7 @@ test:
   only:
     - main
     - development
+    - setup-ci
 
 install:
   stage: install
@@ -45,3 +47,4 @@ install:
   only:
     - main
     - development
+    - setup-ci
