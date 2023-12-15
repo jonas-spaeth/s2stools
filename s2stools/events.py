@@ -75,9 +75,7 @@ class EventComposite:
         # events from json
         if isinstance(events, str):
             # assert that event_jsons_path describes a path
-            self.event_list_json = _eventlist_from_json(
-                events.replace("MODEL", model)
-            )
+            self.event_list_json = _eventlist_from_json(events.replace("MODEL", model))
         elif isinstance(events, list):
             # assert event_jsons_path is the list of events
             self.event_list_json = events
@@ -94,8 +92,10 @@ class EventComposite:
         return len(self.comp.i)
 
     def __repr__(self):
-        return f"<s2stools.events.EventComposite> of {len(self)} events of type '{self.descr}'\n" \
-               f"\t--> see composite dataset using my_event_composite.comp"
+        return (
+            f"<s2stools.events.EventComposite> of {len(self)} events of type '{self.descr}'\n"
+            f"\t--> see composite dataset using my_event_composite.comp"
+        )
 
 
 def _eventlist_from_json(path):
@@ -114,7 +114,10 @@ def _eventlist_ensure_leadtime_key(eventlist):
         return _format_eventlist_dayssinceinit_to_pdtimedeltastamp(eventlist)
     else:
         raise ValueError(
-            "eventlist must have one of ('leadtime', 'days_since_init') as coordinate. (Has: {})".format(coords))
+            "eventlist must have one of ('leadtime', 'days_since_init') as coordinate. (Has: {})".format(
+                coords
+            )
+        )
 
 
 def _format_eventlist_dayssinceinit_to_pdtimedeltastamp(eventlist):
@@ -130,13 +133,18 @@ def _dataset_ensure_leadtime_key(dataset):
     if "leadtime" in coords:
         return dataset
     elif "days_since_init" in coords:
-        print("Warning: .data will have coordinate 'leadtime', not 'days_since_init'. Hope that's okay?")
+        print(
+            "Warning: .data will have coordinate 'leadtime', not 'days_since_init'. Hope that's okay?"
+        )
         return dataset.assign_coords(
             days_since_init=pd.TimedeltaIndex(dataset.days_since_init.values, "D")
         ).rename(days_since_init="leadtime")
     else:
         raise ValueError(
-            "dataset must have one of ('leadtime', 'days_since_init') as coordinate. (Has: {})".format(coords))
+            "dataset must have one of ('leadtime', 'days_since_init') as coordinate. (Has: {})".format(
+                coords
+            )
+        )
 
 
 def _composite_from_eventlist(event_list, data):
@@ -151,9 +159,9 @@ def _composite_from_eventlist(event_list, data):
                 number=event["fc"]["number"],
             )
             event_comp.append(
-                forecast.assign_coords(
-                    leadtime=data.leadtime - central_day
-                ).rename(leadtime="lagtime").assign_coords(leadtime=central_day)
+                forecast.assign_coords(leadtime=data.leadtime - central_day)
+                .rename(leadtime="lagtime")
+                .assign_coords(leadtime=central_day)
             )
         elif event["fc"]["reftime"] in missing_reftime_keys:
             continue
@@ -170,7 +178,9 @@ def _composite_from_eventlist(event_list, data):
     return event_comp.assign_coords(i=event_comp.i)
 
 
-def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=10):
+def find_ssw(
+    u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=10
+) -> list:
     """
     Find Sudden Stratospheric Warmings in S2S forecast.
 
@@ -200,8 +210,9 @@ def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=1
     In the future, it would be nice to append the reanalysis ahead of the forecast to check the preceding
     vortex evolution.
     """
-    buffer_start, buffer_end, require_westwind_start = map(_to_timedelta64,
-                                                           [buffer_start, buffer_end, require_westwind_start])
+    buffer_start, buffer_end, require_westwind_start = map(
+        _to_timedelta64, [buffer_start, buffer_end, require_westwind_start]
+    )
 
     var = u60_10hPa.squeeze()
     var_stacked = var.stack(fc=["reftime", "hc_year", "number"])
@@ -218,7 +229,9 @@ def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=1
         .fc
     )
 
-    print(f"\t forecasts start start with {require_westwind_start} days westwind: {len(fc_startwest)}")
+    print(
+        f"\t forecasts start start with {require_westwind_start} days westwind: {len(fc_startwest)}"
+    )
 
     events = []
     for fc in tqdm(fc_startwest[:], desc="Scanning Forecasts for Events"):
@@ -287,7 +300,7 @@ def _eventdict_to_json(event_dict, path, short_path=False, split_reftimes=False)
                 + "_ref{}.json".format(ref_str.replace("-", ""))
                 if short_path
                 else path.split(".json")[0]
-                     + "_ref{}.json".format(ref_str.replace("-", ""))
+                + "_ref{}.json".format(ref_str.replace("-", ""))
             )
             save_dict(events_oneref, path_splitted)
 
@@ -336,7 +349,7 @@ def _to_timedelta64(a, assume="D"):
     return a
 
 
-def ssw_compendium_event_dates(column='ERA-Interim'):
+def ssw_compendium_event_dates(column="ERA-Interim"):
     """
     Read html table from SSW compendium
 
@@ -371,9 +384,7 @@ def ssw_compendium_event_dates(column='ERA-Interim'):
     df = df_raw.applymap(parse_dates)
 
     # filter for valid dates
-    dates = df[column][
-        df[column].apply(lambda x: isinstance(x, pd.Timestamp))
-    ]
+    dates = df[column][df[column].apply(lambda x: isinstance(x, pd.Timestamp))]
 
     return dates
 
@@ -413,19 +424,22 @@ def extreme_predictors(data_comp):
             "extremors_nam1000_m0": ("days_since_event", predictor_fractions_m0),
             "extremors_nam1000_p2": ("days_since_event", predictor_fractions_p2),
         },
-        coords={"days_since_event": ("days_since_event", data_comp.days_since_event.values)},
+        coords={
+            "days_since_event": ("days_since_event", data_comp.days_since_event.values)
+        },
     )
 
 
 #### EXTREME PROBABILITIES
 
+
 def prob_oneday_extreme_nam_within_period_clim(
-        nam_data,
-        extreme_threshold,
-        bootstrap_sample_size,
-        n_bootstrap_samples=1_000,
-        uncertainty_percentiles=[0.025, 0.975],
-        max_days=None,
+    nam_data,
+    extreme_threshold,
+    bootstrap_sample_size,
+    n_bootstrap_samples=1_000,
+    uncertainty_percentiles=[0.025, 0.975],
+    max_days=None,
 ):
     """Compute climatological probability of at least 1 day below threshold as function of waiting period.
 
@@ -508,7 +522,7 @@ def prob_oneday_extreme_nam_within_period_after_event(nam_comp, extreme_threshol
 
 
 def bootstrap_extr_prob(
-        population, sample_size, dsi_slice, threshold, alpha=0.05, n_bootstrap_samples=1_000
+    population, sample_size, dsi_slice, threshold, alpha=0.05, n_bootstrap_samples=1_000
 ):
     """Bootstrapping forecasts to compute mean and confidence interval for probability that NAM is below threshold.
 
@@ -531,8 +545,8 @@ def bootstrap_extr_prob(
     )
     n_dsi = len(population_dsi_sliced.days_since_init)
     population_dsi_sliced_vals_reshaped = population_dsi_sliced_vals[
-                                          :, rand_fc_idx
-                                          ].reshape(n_dsi, sample_size, n_bootstrap_samples)
+        :, rand_fc_idx
+    ].reshape(n_dsi, sample_size, n_bootstrap_samples)
 
     if threshold <= 0:
         is_extreme = (population_dsi_sliced_vals_reshaped < threshold).max(

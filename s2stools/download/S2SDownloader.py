@@ -33,6 +33,4 @@ class S2SDownloader:
         if True:
             server = ECMWFDataServer()
 
-            server.retrieve(
-                request
-            )
+            server.retrieve(request)
