@@ -178,7 +178,9 @@ def _composite_from_eventlist(event_list, data):
     return event_comp.assign_coords(i=event_comp.i)
 
 
-def find_ssw(u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=10) -> list:
+def find_ssw(
+    u60_10hPa, buffer_start=10, buffer_end=10, require_westwind_start=10
+) -> list:
     """
     Find Sudden Stratospheric Warmings in S2S forecast.
 
