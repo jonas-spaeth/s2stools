@@ -33,7 +33,7 @@ class S2SDownloaderECMWF(S2SDownloader):
         rt_pf_kwargs={},
         hc_cf_kwargs={},
         hc_pf_kwargs={},
-        **kwargs
+        **kwargs,
     ):
         """
         Download S2S ECMWF data.
@@ -77,7 +77,6 @@ class S2SDownloaderECMWF(S2SDownloader):
         self.request.update(dict(**kwargs))
 
         for d in filtered_reftime:
-
             self.request["date"] = str(d)
 
             for fc_type, fc_type_kwargs, fc_type_class in [

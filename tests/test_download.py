@@ -55,10 +55,12 @@ def test_download_ecmwf():
         rt_pf_kwargs=dict(levtype="pl", skip=skip_rt_pf),
         hc_cf_kwargs=dict(levtype="pl", skip=skip_hc_cf),
         hc_pf_kwargs=dict(levtype="pl", skip=skip_hc_pf),
-        write_info_file=True
+        write_info_file=True,
     )
-    file_paths = ['data/s2s_ecmwf_z1000download_2015-11-16_rt_cf.nc',
-                  'data/s2s_ecmwf_z1000download_2015-11-19_rt_cf.nc']
+    file_paths = [
+        "data/s2s_ecmwf_z1000download_2015-11-16_rt_cf.nc",
+        "data/s2s_ecmwf_z1000download_2015-11-19_rt_cf.nc",
+    ]
 
     for file_path in file_paths:
         file = Path(file_path)
@@ -68,6 +70,7 @@ def test_download_ecmwf():
 
     # delete write request info file
     from glob import glob
-    json_files = glob('data/request*.json')
+
+    json_files = glob("data/request*.json")
     for f in json_files:
         Path(f).unlink()

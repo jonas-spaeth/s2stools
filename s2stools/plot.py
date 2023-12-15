@@ -25,7 +25,7 @@ def xaxis_unit_days(ax=None, multiple=7, minor_multiple=1):
 
     # Function that formats the axis labels
     def timeTicks(x, pos):
-        seconds = x / 10 ** 9  # convert nanoseconds to seconds
+        seconds = x / 10**9  # convert nanoseconds to seconds
         # create datetime object because its string representation is alright
         d = datetime.timedelta(seconds=seconds)
         return str(d.days)
@@ -201,7 +201,7 @@ def fill_between(dataarray, x, y, ax=None, ci=None, **kwargs):
 
 
 def plot_dots_where(
-        dataarray, condition, every_nth_lon=1, every_nth_lat=1, **scatter_kws
+    dataarray, condition, every_nth_lon=1, every_nth_lat=1, **scatter_kws
 ):
     """
     Scatter Points where condition is fulfilled.
@@ -343,7 +343,7 @@ def add_box(dict_lon_lat_slice, ax, **kwargs):
                 width=width,
                 height=height,
                 transform=ccrs.PlateCarree(),
-                **plot_kwargs
+                **plot_kwargs,
             )
         )
 
@@ -362,10 +362,7 @@ def atlantic_map_subplot_kws(lonlim=None, latlim=None, lat0=None, lon0=None):
         lon0 = -20
 
     kws = dict(
-        proj='nsper',
-        proj_kw=dict(lat0=lat0, lon0=lon0),
-        lonlim=lonlim,
-        latlim=latlim
+        proj="nsper", proj_kw=dict(lat0=lat0, lon0=lon0), lonlim=lonlim, latlim=latlim
     )
 
     return kws
@@ -435,9 +432,7 @@ def legend_colored_labels_no_lines(ax, fontweight="bold", **kwargs):
     -------
     legend
     """
-    default_kwargs = dict(
-        columnspacing=1, handletextpad=-2
-    )
+    default_kwargs = dict(columnspacing=1, handletextpad=-2)
     kwargs = default_kwargs | kwargs
     legend = ax.legend(**kwargs)
 
@@ -514,9 +509,18 @@ def set_yticks_with_colored_labels(ax, yticks, yticklabels, colors, fontweight="
         label.set_fontweight(fontweight)
 
 
-def add_map_inset(ax, loc="ul", size=.3, proj="cyl", lonlim=(-180, 180), latlim=(0, 90), inset_kw={}, draw_box=None,
-                  box_kw={},
-                  format_kw={}):
+def add_map_inset(
+    ax,
+    loc="ul",
+    size=0.3,
+    proj="cyl",
+    lonlim=(-180, 180),
+    latlim=(0, 90),
+    inset_kw={},
+    draw_box=None,
+    box_kw={},
+    format_kw={},
+):
     """
     Add a small map to an existing axis. Designed to indicate geographic location of some other analysis.
 
@@ -567,12 +571,12 @@ def add_map_inset(ax, loc="ul", size=.3, proj="cyl", lonlim=(-180, 180), latlim=
         bounds=bounds, proj=proj, lonlim=lonlim, latlim=latlim, zorder=-5
     )
     inset_kw = inset_kw_default | inset_kw
-    ax_inset = ax.inset(
-        **inset_kw
-    )
+    ax_inset = ax.inset(**inset_kw)
     if add_box:
-        assert isinstance(draw_box, dict), ("add_box must be dictionary of form"
-                                            "{'longitude': slice(lon1, lon2), 'latitude': slice(lat1, lat2)}")
+        assert isinstance(draw_box, dict), (
+            "add_box must be dictionary of form"
+            "{'longitude': slice(lon1, lon2), 'latitude': slice(lat1, lat2)}"
+        )
         add_box(draw_box, ax_inset, **box_kw)
     format_kw_default = dict(coast=True, lw=0, grid=False)
     format_kw = format_kw_default | format_kw

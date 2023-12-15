@@ -12,7 +12,9 @@ def list_to_string(l):
     if isinstance(l, list):
         return "/".join([str(i) for i in l])
     else:
-        assert False, "list_to_string excepts only type string or list, not {}".format(type(l))
+        assert False, "list_to_string excepts only type string or list, not {}".format(
+            type(l)
+        )
 
 
 def add_years(dt64, years):
@@ -31,9 +33,9 @@ def add_years(dt64, years):
 
         def replace_year(x):
             if (
-                    (x.month == 2)
-                    & (x.day == 29)
-                    & (calendar.isleap(x.year + years) == False)
+                (x.month == 2)
+                & (x.day == 29)
+                & (calendar.isleap(x.year + years) == False)
             ):
                 return x.replace(year=x.year + years, day=28)
             else:
@@ -46,9 +48,9 @@ def add_years(dt64, years):
         for i in range(len(dt64)):
             pd_dt = pd.to_datetime(dt64[i])
             if (
-                    (pd_dt.month == 2)
-                    & (pd_dt.day == 29)
-                    & (calendar.isleap(pd_dt.year + years[i]) == False)
+                (pd_dt.month == 2)
+                & (pd_dt.day == 29)
+                & (calendar.isleap(pd_dt.year + years[i]) == False)
             ):
                 res.append(pd_dt.replace(year=pd_dt.year + years[i], day=28))
             else:
@@ -90,7 +92,7 @@ def month_int_to_abbr(months):
     return [d[m] for m in months]
 
 
-def lat_weighted_spatial_mean(dataarray, lon_name='longitude', lat_name='latitude'):
+def lat_weighted_spatial_mean(dataarray, lon_name="longitude", lat_name="latitude"):
     """
     Spatial average over longitude, latitude. Gridpoints are weighted by cos(lat) to account for different areas on
     Gaussian grid on a sphere.

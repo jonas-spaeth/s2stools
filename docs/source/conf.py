@@ -9,7 +9,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../s2stools'))
+sys.path.insert(0, os.path.abspath("../s2stools"))
 
 project = "s2stools"
 copyright = "2023, Jonas Spaeth"
@@ -35,10 +35,9 @@ html_static_path = ["_static"]
 #  Logo
 html_logo = "_static/s2stools_icon.png"
 html_theme_options = {
-    'logo_only': False,
-    'display_version': True,
+    "logo_only": False,
+    "display_version": True,
 }
 
 # favicon
 html_favicon = "_static/favicon.ico"
-
