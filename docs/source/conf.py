@@ -13,11 +13,11 @@ sys.path.insert(0, os.path.abspath("../s2stools"))
 
 project = "s2stools"
 copyright = "2023, Jonas Spaeth"
-# author = "Jonas Spaeth"
-# with open("../../VERSION") as f:
-#     version = f.read().strip()
-# release = version
-release = "0.3.6"
+author = "Jonas Spaeth"
+with open("../../VERSION") as f:
+    version = f.read().strip()
+release = version
+# release = "0.3.6"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -5,8 +5,12 @@ What's new
 
 Only some of the major changes are tracked here.
 
+v0.3.7 (unpublished)
+--------------------
 
-v0.3.6 (unpublished)
+
+
+v0.3.6 (15 December 2023)
 --------------------
 
 - :func:`s2stools.plot.cmap_spread` accepts to new arguments ``less_dark_blue`` and ``less_dark_red`` to control saturation limits
@@ -17,6 +21,9 @@ v0.3.6 (unpublished)
 - :func:`s2stools.clim.climatology` now accepts hindcast-only datasets
 - :func:`s2stools.clim.climatology` now raises a warning if used with flox (we should support flox in the future, do you want to implement it?)
 
+internal changes:
+
+- add CI/CD with gitlab runners
 
 v0.3.5 (August 2023)
 --------------------
