@@ -3,7 +3,7 @@ s2stools
 ========
 
 .. image:: https://readthedocs.org/projects/s2stools/badge/?version=latest
-    :target: https://pyzome.readthedocs.io/en/latest/?badge=latest
+    :target: https://s2stools.readthedocs.io/en/latest/
     :alt: Documentation Status
 
 
