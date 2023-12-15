@@ -14,7 +14,9 @@ sys.path.insert(0, os.path.abspath("../s2stools"))
 project = "s2stools"
 copyright = "2023, Jonas Spaeth"
 author = "Jonas Spaeth"
-release = "0.3.5"
+with open("../../VERSION") as f:
+    version = f.read().strip()
+release = version
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
