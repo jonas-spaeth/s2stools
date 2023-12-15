@@ -4,25 +4,25 @@ stages:
   - test
   - install
 
- # release:
- # stage: release
- # image: python:latest
- # script:
- #   - pip install twine
- #   - python setup.py sdist bdist_wheel
- #   - twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing --verbose dist/* -u __token__ -p ${TEST_PYPI_API_TOKEN}
- # only:
- #   - tags
+# release:
+# stage: release
+# image: python:latest
+# script:
+#   - pip install twine
+#   - python setup.py sdist bdist_wheel
+#   - twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing --verbose dist/* -u __token__ -p ${TEST_PYPI_API_TOKEN}
+# only:
+#   - tags
 
- release:
- stage: release
- image: python:latest
- script:
-   - pip install twine
-   - python setup.py sdist bdist_wheel
-   - twine upload --repository-url https://pypi.org/legacy/ --skip-existing --verbose dist/* -u __token__ -p ${PYPI_API_TOKEN}
- only:
-   - tags
+release:
+  stage: release
+  image: python:latest
+  script:
+    - pip install twine
+    - python setup.py sdist bdist_wheel
+    - twine upload --repository-url https://pypi.org/legacy/ --skip-existing --verbose dist/* -u __token__ -p ${PYPI_API_TOKEN}
+  only:
+    - tags
 
 format:
   stage: format
