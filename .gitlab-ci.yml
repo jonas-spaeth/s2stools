@@ -18,6 +18,7 @@ format:
   image: python:latest
   script:
     - pip install black
+    - pip install "black[jupyter]"
     - black --check .
 
 test:
