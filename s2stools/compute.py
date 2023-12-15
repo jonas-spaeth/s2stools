@@ -63,8 +63,10 @@ def zonal_wavenumber_decomposition(data, k_aggregates=True):
         xr.DataArray not yet supported as input.
     """
 
-    assert 'longitude' in data.dims, f'longitude not in dimensions {data.dims}'
-    assert isinstance(data.data, dask.array.Array), f'data needs to be chunked (but data is of type {type(data)})'
+    assert "longitude" in data.dims, f"longitude not in dimensions {data.dims}"
+    assert isinstance(
+        data.data, dask.array.Array
+    ), f"data needs to be chunked (but data is of type {type(data)})"
 
     n = len(data.longitude)
     dx = data.longitude[1].values - data.longitude[0].values
@@ -91,16 +93,20 @@ def zonal_wavenumber_decomposition(data, k_aggregates=True):
             return data_fft
     else:
         assert isinstance(
-            k_aggregates,
-            dict
-            ), f"unsupported type for k_aggregates (needs to be one of (bool, dict), not {type(k_aggregates)})"
+            k_aggregates, dict
+        ), f"unsupported type for k_aggregates (needs to be one of (bool, dict), not {type(k_aggregates)})"
 
     # k aggregation
     return aggregate_k(data_fft, k_aggregates)
 
 
-def eddy_flux_spectral(a, b, aggregate_k=None, verify_that_sum_over_k_is_total_flux=False,
-                       return_two_profiles_along_dim=False):
+def eddy_flux_spectral(
+    a,
+    b,
+    aggregate_k=None,
+    verify_that_sum_over_k_is_total_flux=False,
+    return_two_profiles_along_dim=False,
+):
     """
     Compute spectral covariance, e.g. for eddy heatflux.
 
@@ -118,12 +124,12 @@ def eddy_flux_spectral(a, b, aggregate_k=None, verify_that_sum_over_k_is_total_f
     -------
 
     """
-    assert 'longitude' in a.dims, "a requires dimension longitude"
-    assert 'longitude' in b.dims, "b requires dimension longitude"
+    assert "longitude" in a.dims, "a requires dimension longitude"
+    assert "longitude" in b.dims, "b requires dimension longitude"
 
     # zonal anomalies (p is for 'prime')
-    ap = a - a.mean('longitude')
-    bp = b - b.mean('longitude')
+    ap = a - a.mean("longitude")
+    bp = b - b.mean("longitude")
 
     # wavenumber decomposition
     a_fft = zonal_wavenumber_decomposition(ap)
@@ -133,22 +139,35 @@ def eddy_flux_spectral(a, b, aggregate_k=None, verify_that_sum_over_k_is_total_f
     ab_fft = np.real(a_fft * b_fft.conj() + a_fft.conj() * b_fft)
 
     # aggregate k
-    ab_fft = aggregate_k(ab_fft, rule=aggregate_k) if aggregate_k is not None else ab_fft
+    ab_fft = (
+        aggregate_k(ab_fft, rule=aggregate_k) if aggregate_k is not None else ab_fft
+    )
 
     # verify that sum over k is equal to total flux
     if verify_that_sum_over_k_is_total_flux:
-        ab_total_flux = (ap * bp).mean('longitude')
-        other_dims_first = {d: 0 for d in ab_total_flux.dims if (d != 'longitude') & (d != 'leadtime')}
+        ab_total_flux = (ap * bp).mean("longitude")
+        other_dims_first = {
+            d: 0 for d in ab_total_flux.dims if (d != "longitude") & (d != "leadtime")
+        }
         ab_total_flux_one_longitude_profile = ab_total_flux.isel(other_dims_first)
-        ab_fft_one_longitude_profile = ab_fft.isel(other_dims_first).sum('k')
-        mean_diff = (ab_total_flux_one_longitude_profile - ab_fft_one_longitude_profile).mean()
-        assert mean_diff < 10, f"Sum over k is not equal to total flux (maximum difference is {mean_diff.values})"
+        ab_fft_one_longitude_profile = ab_fft.isel(other_dims_first).sum("k")
+        mean_diff = (
+            ab_total_flux_one_longitude_profile - ab_fft_one_longitude_profile
+        ).mean()
+        assert (
+            mean_diff < 10
+        ), f"Sum over k is not equal to total flux (maximum difference is {mean_diff.values})"
 
         if return_two_profiles_along_dim:
-            return ab_fft, (ab_total_flux_one_longitude_profile, ab_fft_one_longitude_profile)
+            return ab_fft, (
+                ab_total_flux_one_longitude_profile,
+                ab_fft_one_longitude_profile,
+            )
     else:
         if return_two_profiles_along_dim:
-            print("Cannot return return_two_profiles_along_dim when verify_that_sum_over_k_is_total_flux is not True.")
+            print(
+                "Cannot return return_two_profiles_along_dim when verify_that_sum_over_k_is_total_flux is not True."
+            )
 
     return ab_fft
 
@@ -178,7 +197,7 @@ def aggregate_k(data, rule=None):
             "21-inf": slice(21, None),
         }
 
-    assert 'k' in data.dims, f"'k' is not one of the dimensions in data: {data.dims}"
+    assert "k" in data.dims, f"'k' is not one of the dimensions in data: {data.dims}"
     to_merge = []
     for new_k_name, k_range in rule.items():
         data_sel = data.sel(k=k_range)
@@ -203,7 +222,7 @@ def _conv_mat(windows, n):
 
 def _conv_arr(window, n):
     assert (
-            window <= n
+        window <= n
     ), f"window ({window}) must smaller or equal to the dimension length n ({n})"
     n_zeros_left = np.ceil((n - window) / 2).astype("int")
     n_zeros_right = np.floor((n - window) / 2).astype("int")
@@ -306,8 +325,8 @@ def css(forecast_anomalies, observation_anomalies, dim):
     """
     n = len(forecast_anomalies[dim])
     numerator = (forecast_anomalies * observation_anomalies).mean(dim)
-    var_fc = (forecast_anomalies ** 2).mean(dim)
-    var_obs = (observation_anomalies ** 2).mean(dim)
+    var_fc = (forecast_anomalies**2).mean(dim)
+    var_obs = (observation_anomalies**2).mean(dim)
     denominator = np.sqrt(var_fc * var_obs)
     return numerator / denominator
 
@@ -318,10 +337,13 @@ def register_sample_variance_aggregation_for_flox():
         from flox.xarray import Aggregation
         import numpy_groupies as npg
     except:
-        print("This function requires flox and numpy_groupies. Consider: pip install flox numpy_groupies")
+        print(
+            "This function requires flox and numpy_groupies. Consider: pip install flox numpy_groupies"
+        )
     else:
+
         def sample_variance(
-                group_idx, array, *, axis=-1, size=None, fill_value=np.nan, dtype=None
+            group_idx, array, *, axis=-1, size=None, fill_value=np.nan, dtype=None
         ):
             return npg.aggregate_numpy.aggregate(
                 group_idx,
