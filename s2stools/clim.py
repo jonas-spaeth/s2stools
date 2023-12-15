@@ -6,13 +6,14 @@ from warnings import warn
 
 
 def climatology(
-        data: xr.DataArray | xr.Dataset,
-        window_size: int = 15,
-        mean_or_std: str = "mean",
-        ndays_clim_filter: int = 7,
-        hide_warnings: bool = False,
-        groupby: str = "validtime",
-        dim_number_non_exist: bool = False):
+    data: xr.DataArray | xr.Dataset,
+    window_size: int = 15,
+    mean_or_std: str = "mean",
+    ndays_clim_filter: int = 7,
+    hide_warnings: bool = False,
+    groupby: str = "validtime",
+    dim_number_non_exist: bool = False,
+):
     """
     Compute anomalies from the climatological mean. Deseasonalization is based on hindcasts.
 
@@ -63,10 +64,12 @@ def climatology(
     if "number" not in data.dims:
         dim_number_non_exist = True
     if dim_number_non_exist:
-        data = data.expand_dims('number').assign_coords(number=[0])
+        data = data.expand_dims("number").assign_coords(number=[0])
 
     if 0 not in data.hc_year:
-        print("Data seems to include no realtime forecasts. No problem, just to let you know.")
+        print(
+            "Data seems to include no realtime forecasts. No problem, just to let you know."
+        )
         hc_year = data.hc_year.values.tolist()
         data = data.reindex(hc_year=hc_year + [0])
 
@@ -76,7 +79,9 @@ def climatology(
         aggregation = xarray.core.groupby.DatasetGroupByAggregations
     else:
         aggregation = None
-        raise TypeError('aggregation impossible, expected data to be dataset or datarray')
+        raise TypeError(
+            "aggregation impossible, expected data to be dataset or datarray"
+        )
 
     if mean_or_std == "mean":
         aggregation_func = aggregation.mean
@@ -90,7 +95,6 @@ def climatology(
     clim_list = []
 
     for reftime in tqdm(data.reftime, desc="iterating reftimes"):
-
         # collect all reftimes within time window
         reftime = reftime.values.astype("datetime64[D]")
 
@@ -115,16 +119,19 @@ def climatology(
         # compute climatology
         try:
             if groupby == "validtime":
-                warn("If you dont't know what you are doing you should better use groupby='leadtime'.", Warning)
+                warn(
+                    "If you dont't know what you are doing you should better use groupby='leadtime'.",
+                    Warning,
+                )
                 clim = (
                     (
                         clim_stacked.assign_coords(
                             days_since_reftime_init=(
                                 "date",
                                 (
-                                        clim_stacked.reftime.values
-                                        - reftime
-                                        + clim_stacked.leadtime.values
+                                    clim_stacked.reftime.values
+                                    - reftime
+                                    + clim_stacked.leadtime.values
                                 ).astype("timedelta64[D]"),
                             )
                         )  # days_since_reftime_init measures timedelta relative to initialization
@@ -146,7 +153,7 @@ def climatology(
                         )  # cut climatology to length of forecast
                         .rename(days_since_reftime_init="leadtime")
                     )
-                    .assign_coords(reftime=reftime.astype('datetime64[ns]'))
+                    .assign_coords(reftime=reftime.astype("datetime64[ns]"))
                     .expand_dims("reftime")
                 )
 
@@ -175,14 +182,16 @@ def climatology(
                             leadtime=slice(np.timedelta64(0, "D"), data.leadtime[-1])
                         )  # cut climatology to length of forecast
                     )
-                    .assign_coords(reftime=reftime.astype('datetime64[ns]'))
+                    .assign_coords(reftime=reftime.astype("datetime64[ns]"))
                     .expand_dims("reftime")
                 )
         except AttributeError as e:
             # Catch AttributeError and raise a warning with custom text
-            custom_warning_text = ("\n\nThe error regarding the '_obj' attribute is typically raised when using "
-                                   "flox. Consider using\n\n"
-                                   "with xr.set_options(use_flox=False):\n\ts2stools.clim.climatology(...)\n")
+            custom_warning_text = (
+                "\n\nThe error regarding the '_obj' attribute is typically raised when using "
+                "flox. Consider using\n\n"
+                "with xr.set_options(use_flox=False):\n\ts2stools.clim.climatology(...)\n"
+            )
             warn(custom_warning_text, Warning)
 
             # Re-raise the original AttributeError
@@ -208,15 +217,15 @@ def climatology(
 
 
 def deseasonalize(
-        data,
-        window_size=15,
-        standardize=False,
-        ndays_clim_filter=7,
-        hide_print=True,
-        hide_plot=True,
-        hide_warnings=False,
-        return_clim_lists=False,
-        dim_number_non_exist=False
+    data,
+    window_size=15,
+    standardize=False,
+    ndays_clim_filter=7,
+    hide_print=True,
+    hide_plot=True,
+    hide_warnings=False,
+    return_clim_lists=False,
+    dim_number_non_exist=False,
 ):
     """
     Compute anomalies from the climatological mean. Deseasonalization is based on hindcasts.
@@ -292,9 +301,9 @@ def deseasonalize(
                     days_since_reftime_init=(
                         "date",
                         (
-                                clim_stacked.reftime.values
-                                - reftime
-                                + clim_stacked.leadtime.values
+                            clim_stacked.reftime.values
+                            - reftime
+                            + clim_stacked.leadtime.values
                         ).astype("timedelta64[D]"),
                     )
                 )
@@ -302,11 +311,15 @@ def deseasonalize(
                 .groupby("days_since_reftime_init")
                 .mean()
                 .rolling(
-                    days_since_reftime_init=ndays_clim_filter, center=True, min_periods=1
+                    days_since_reftime_init=ndays_clim_filter,
+                    center=True,
+                    min_periods=1,
                 )
                 .mean()
                 .sel(
-                    days_since_reftime_init=slice(np.timedelta64(0, "D"), data.leadtime[-1])
+                    days_since_reftime_init=slice(
+                        np.timedelta64(0, "D"), data.leadtime[-1]
+                    )
                 )
                 .rename(days_since_reftime_init="leadtime")
             )
@@ -345,9 +358,9 @@ def deseasonalize(
                         days_since_reftime_init=(
                             "date",
                             (
-                                    climstd_stacked.reftime.values.astype("datetime64[D]")
-                                    - reftime
-                                    + climstd_stacked.leadtime.values
+                                climstd_stacked.reftime.values.astype("datetime64[D]")
+                                - reftime
+                                + climstd_stacked.leadtime.values
                             ).astype("timedelta64[D]"),
                         )
                     )

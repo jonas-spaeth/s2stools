@@ -1,7 +1,15 @@
 import numpy as np
 import xarray as xr
-from s2stools.process import s2sparser, add_model_cycle_ecmwf, add_validtime, concat_era5_before_s2s, stack_fc, \
-    stack_ensfc, combine_s2s_and_reanalysis, _infer_reftime_from_filename
+from s2stools.process import (
+    s2sparser,
+    add_model_cycle_ecmwf,
+    add_validtime,
+    concat_era5_before_s2s,
+    stack_fc,
+    stack_ensfc,
+    combine_s2s_and_reanalysis,
+    _infer_reftime_from_filename,
+)
 
 
 def test_s2sparser():
@@ -27,45 +35,45 @@ def test_s2sparser():
 
 
 def test_add_model_cycle_ecmwf():
-    ds_raw = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
+    ds_raw = xr.open_mfdataset("data/s2s*.nc", preprocess=s2sparser)
     ds = add_model_cycle_ecmwf(ds_raw)
-    assert 'cycle' in ds.coords
+    assert "cycle" in ds.coords
 
 
 def test_add_validtime():
-    ds_raw = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
-    assert 'validtime' in ds_raw.coords
-    ds_wo_vt = ds_raw.drop_vars('validtime')
-    assert 'validtime' not in ds_wo_vt.coords
+    ds_raw = xr.open_mfdataset("data/s2s*.nc", preprocess=s2sparser)
+    assert "validtime" in ds_raw.coords
+    ds_wo_vt = ds_raw.drop_vars("validtime")
+    assert "validtime" not in ds_wo_vt.coords
     ds_new = add_validtime(ds_wo_vt)
-    assert 'validtime' in ds_new.coords
+    assert "validtime" in ds_new.coords
 
 
 def test_concat_era5_before_s2s():
     # open forecast and reanalysis dataset
-    ds_s2s = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
-    ds_era5 = xr.open_mfdataset('data/era5*.nc')
+    ds_s2s = xr.open_mfdataset("data/s2s*.nc", preprocess=s2sparser)
+    ds_era5 = xr.open_mfdataset("data/era5*.nc")
 
     ds_combined = concat_era5_before_s2s(ds_s2s.u, ds_era5.u, max_neg_leadtime_days=10)
     print(ds_combined)
 
 
 def test_stack_fc():
-    ds = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
+    ds = xr.open_mfdataset("data/s2s*.nc", preprocess=s2sparser)
     ds_stacked = stack_fc(ds)
-    assert 'fc' in ds_stacked.dims
+    assert "fc" in ds_stacked.dims
 
 
 def test_stack_ensfc():
-    ds = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
+    ds = xr.open_mfdataset("data/s2s*.nc", preprocess=s2sparser)
     ds_stacked = stack_ensfc(ds)
-    assert 'fc' in ds_stacked.dims
+    assert "fc" in ds_stacked.dims
 
 
 def test_combine_s2s_and_reanalysis():
     # open forecast and reanalysis dataset
-    ds_s2s = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
-    ds_era5 = xr.open_mfdataset('data/era5*.nc')
+    ds_s2s = xr.open_mfdataset("data/s2s*.nc", preprocess=s2sparser)
+    ds_era5 = xr.open_mfdataset("data/era5*.nc")
     print(ds_s2s)
     print(ds_era5)
     # DataArray
@@ -73,7 +81,7 @@ def test_combine_s2s_and_reanalysis():
     # Dataset
     ds_combined = combine_s2s_and_reanalysis(ds_s2s, ds_era5)
     # Dataset with different names
-    ds_combined = combine_s2s_and_reanalysis(ds_s2s, ds_era5.rename(u='u_reanalysis'))
+    ds_combined = combine_s2s_and_reanalysis(ds_s2s, ds_era5.rename(u="u_reanalysis"))
     # Dataset without stacking to ensfc
     ds_combined = combine_s2s_and_reanalysis(ds_s2s, ds_era5, ensfc=False)
     print(ds_combined)
@@ -81,28 +89,26 @@ def test_combine_s2s_and_reanalysis():
 
 def test__infer_reftime_from_filename():
     # works
-    path = 'data/s2s_u60_10hPa_20171116_cf_short.nc'
+    path = "data/s2s_u60_10hPa_20171116_cf_short.nc"
     result = _infer_reftime_from_filename(path)
     assert isinstance(result, np.datetime64)
 
     # works
-    path = 'data/s2s_u60_10hPa_cf_2017_11_16_short.nc'
+    path = "data/s2s_u60_10hPa_cf_2017_11_16_short.nc"
     result = _infer_reftime_from_filename(path)
     assert isinstance(result, np.datetime64)
 
     # does not work
-    path = 'data/s2s_u60_10hPa_cf_short.nc'
+    path = "data/s2s_u60_10hPa_cf_short.nc"
     result = _infer_reftime_from_filename(path)
     assert not isinstance(result, np.datetime64)
 
     # works
-    path = 'data/s2s_something_else_2017-11-01.nc'
+    path = "data/s2s_something_else_2017-11-01.nc"
     result = _infer_reftime_from_filename(path)
     assert isinstance(result, np.datetime64)
 
     # works
-    path = 'data/s2s_something_else_20171101.nc'
+    path = "data/s2s_something_else_20171101.nc"
     result = _infer_reftime_from_filename(path)
     assert isinstance(result, np.datetime64)
-
-
