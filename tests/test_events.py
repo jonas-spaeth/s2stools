@@ -1,7 +1,7 @@
 import pytest
 import xarray as xr
 from s2stools.process import s2sparser
-from s2stools.events import EventComposite, find_ssw
+from s2stools.events import EventComposite, find_ssw, find_events
 from tests.utils import *
 
 
@@ -19,7 +19,24 @@ def test_event_composite():
     assert isinstance(ssw_composite2.comp, xr.Dataset)
 
 
-def test_find_events():
+def test_find_ssws():
     # sudden stratospheric warmings
     ds = xr.open_mfdataset(f"{DATA_PATH}/*.nc", preprocess=s2sparser)
     ssws = find_ssw(ds.u.mean("longitude").load())
+
+
+def test_find_events():
+    ds = xr.open_mfdataset(f"{DATA_PATH}/*.nc", preprocess=s2sparser)
+    u = ds.u.mean("longitude").load()
+    min_event_length = 5
+    min_days_between_events = 10
+    event_start_dates, event_end_dates = find_events(
+        u,
+        min_event_length=min_event_length,
+        min_days_between_events=min_days_between_events,
+    )
+    print(event_start_dates, event_end_dates)
+    # as many start dates as end dates
+    assert len(event_start_dates) == len(event_end_dates)
+    # difference between start and end dates is at least min_event_length
+    assert (event_end_dates - event_start_dates > min_event_length).sum() == 0

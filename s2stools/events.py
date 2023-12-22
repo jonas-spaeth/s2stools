@@ -625,3 +625,13 @@ def integrated_extr_prob(data, dse_slice, threshold):
         fc_to_exclude = list(set(fc_to_exclude))  # new
 
     return 1 - np.prod(1 - np.array(n))
+
+
+##### GENERALIZED EVENT IDENTIFICATION
+
+
+def find_events(
+    xr_data, condition, dim=None, min_days_between_events=1, min_event_length=1
+):
+    raise NotImplementedError("This function is not yet implemented.")
+    # return event_start_dates, event_end_dates
