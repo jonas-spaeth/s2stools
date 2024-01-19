@@ -1,7 +1,7 @@
 import numpy as np
 import xarray as xr
 from s2stools.process import s2sparser, add_model_cycle_ecmwf, add_validtime, concat_era5_before_s2s, stack_fc, \
-    stack_ensfc, combine_s2s_and_reanalysis, _infer_reftime_from_filename
+    stack_ensfc, reft_hc_year_to_fc_init_date, combine_s2s_and_reanalysis, _infer_reftime_from_filename
 
 
 def test_s2sparser():
@@ -62,6 +62,17 @@ def test_stack_ensfc():
     assert 'fc' in ds_stacked.dims
 
 
+def test_reft_hc_year_to_fc_init_date():
+    ds = xr.open_mfdataset("data/s2s*hc_*.nc", preprocess=s2sparser)
+    ds_fc_init_date = reft_hc_year_to_fc_init_date(ds)
+    assert 'fc_init_date' in ds_fc_init_date.dims
+    # check if #hc_years * #reftimes = #fc_init_dates
+    N_hc = ds.hc_year.size
+    N_reft = ds.reftime.size
+    N_fc_init_dates = ds_fc_init_date.fc_init_date.size
+    assert N_hc * N_reft == N_fc_init_dates
+
+
 def test_combine_s2s_and_reanalysis():
     # open forecast and reanalysis dataset
     ds_s2s = xr.open_mfdataset('data/s2s*.nc', preprocess=s2sparser)
@@ -104,5 +115,3 @@ def test__infer_reftime_from_filename():
     path = 'data/s2s_something_else_20171101.nc'
     result = _infer_reftime_from_filename(path)
     assert isinstance(result, np.datetime64)
-
-
