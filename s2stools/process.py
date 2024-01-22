@@ -441,12 +441,15 @@ def reft_hc_year_to_fc_init_date(s2s_data):
 
     """
     s2s_data = s2s_data.assign_coords(
-        fc_init_date=(("reftime", "hc_year"), s2s_data.isel(
-            leadtime=0).validtime.values))  # create new coordinate fc_init_date containing reftime and hc_year
+        fc_init_date=(
+            ("reftime", "hc_year"),
+            s2s_data.isel(leadtime=0).validtime.values,
+        )
+    )  # create new coordinate fc_init_date containing reftime and hc_year
 
     data_stacked = s2s_data.stack(fc=("reftime", "hc_year"))
 
-    return data_stacked.swap_dims({"fc": "fc_init_date"}).drop('fc')
+    return data_stacked.swap_dims({"fc": "fc_init_date"}).drop("fc")
 
 
 def combine_s2s_and_reanalysis(s2s, reanalysis, ensfc=True):
