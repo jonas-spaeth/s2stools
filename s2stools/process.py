@@ -52,10 +52,10 @@ def s2sparser(ds):
 
     ### get reftime (needed for relative hindcast year)
     inferred_reftime = _infer_reftime_from_filename(ds.encoding["source"])
-    
+
     ### get lead time resolution
     lt_res = "h" if (((ds.time[1] - ds.time[0]) / np.timedelta64(1, "h")) < 24) else "D"
-    
+
     ### control or perturbed forecast?
 
     if "number" in ds.dims:
@@ -83,17 +83,19 @@ def s2sparser(ds):
         delta_t = np.diff(ds.time).astype(f"timedelta64[{lt_res}]")
         min_days_between_hc_years = 10
         idx_large_delta_t = (
-                np.argwhere(
-                    delta_t > np.timedelta64(min_days_between_hc_years, lt_res)
-                ).ravel()
-                + 1
+            np.argwhere(
+                delta_t > np.timedelta64(min_days_between_hc_years, lt_res)
+            ).ravel()
+            + 1
         )
         reftime = inferred_reftime or ds.time.isel(time=idx_large_delta_t[-1]).values
 
         # determine leadtime
         time_of_first_fc = ds.time.isel(time=slice(0, idx_large_delta_t[0]))
         nt_onefc = len(time_of_first_fc)
-        leadtime = (time_of_first_fc - ds.time[0]).values.astype(f"timedelta64[{lt_res}]")
+        leadtime = (time_of_first_fc - ds.time[0]).values.astype(
+            f"timedelta64[{lt_res}]"
+        )
 
         # reshape time and determine hindcast years
         n_hcy = len(ds.time) // nt_onefc
@@ -113,14 +115,14 @@ def s2sparser(ds):
         )
 
         ds = ds.assign_coords(
-            leadtime=("time", leadtime_broadcasted.astype('timedelta64[ns]')),
+            leadtime=("time", leadtime_broadcasted.astype("timedelta64[ns]")),
             hc_year=("time", hcy_broadcasted),
         )
 
         ds = ds.set_index(time=["leadtime", "hc_year"])
         ds = ds.assign_coords(validtime=("time", dstime.values))
         ds = ds.unstack()
-    ds = ds.assign_coords(reftime=[reftime.astype('datetime64[ns]')])
+    ds = ds.assign_coords(reftime=[reftime.astype("datetime64[ns]")])
     return ds
 
 
@@ -131,13 +133,17 @@ def _infer_reftime_from_filename(filepath):
     filename_underscore_splitted = filename.split("_")
     # usually the second to last item is the date, therefore roll to save time
     filename_underscore_splitted = (
-            filename_underscore_splitted[-2:] + filename_underscore_splitted[:-2]
+        filename_underscore_splitted[-2:] + filename_underscore_splitted[:-2]
     )
     # split points
     filename_underscore_splitted_point_splitted = [
-        i.split('.') for i in filename_underscore_splitted
-    ][::-1]  # list reversing is because date is usually last, and e.g. t2m in the filename can lead to mis-parsing
-    filename_underscore_splitted_point_splitted = _flatten_list(filename_underscore_splitted_point_splitted)
+        i.split(".") for i in filename_underscore_splitted
+    ][
+        ::-1
+    ]  # list reversing is because date is usually last, and e.g. t2m in the filename can lead to mis-parsing
+    filename_underscore_splitted_point_splitted = _flatten_list(
+        filename_underscore_splitted_point_splitted
+    )
 
     # try to parse reftime from one of these items
     for item in filename_underscore_splitted_point_splitted:
@@ -241,7 +247,9 @@ def _reindex_reanalysis_with_s2s_valid_dates(s2s, reanalysis):
     return reanalysis_padded
 
 
-def concat_era5_before_s2s(s2s: xr.DataArray, era5: xr.DataArray, max_neg_leadtime_days: int = 46) -> xr.DataArray:
+def concat_era5_before_s2s(
+    s2s: xr.DataArray, era5: xr.DataArray, max_neg_leadtime_days: int = 46
+) -> xr.DataArray:
     """
     Append ERA5 prior to start of forecasts, ERA5 is indicated as negative leadtimes.
 
@@ -261,12 +269,12 @@ def concat_era5_before_s2s(s2s: xr.DataArray, era5: xr.DataArray, max_neg_leadti
     assert s2s.name == era5.name
 
     # memory warning if dataset has dimension number
-    if 'number' in s2s.dims:
+    if "number" in s2s.dims:
         if len(s2s.number) > 1:
             warn(
-                'If dimension number in S2S dataset, then padding ERA5 before forecast start leads to considerable' \
-                'memory usage, as all ensemble members are padded with the same values.',
-                ResourceWarning
+                "If dimension number in S2S dataset, then padding ERA5 before forecast start leads to considerable"
+                "memory usage, as all ensemble members are padded with the same values.",
+                ResourceWarning,
             )
 
     # reindex s2s forecasts to negative lags
@@ -326,8 +334,8 @@ def add_validtime(da):
     """
     da_stacked = da.stack(day=("reftime", "hc_year", "leadtime"))
     fc_day = (
-            add_years(da_stacked.reftime.values, da_stacked.hc_year.values)
-            + da_stacked.leadtime.values
+        add_years(da_stacked.reftime.values, da_stacked.hc_year.values)
+        + da_stacked.leadtime.values
     )
 
     fc_day_reshaped = fc_day.reshape(len(da.reftime), len(da.hc_year), len(da.leadtime))
@@ -368,10 +376,7 @@ def save_one_file_per_reftime(data: xr.Dataset, path: str, create_subdirectory=N
     reftimes, datasets = zip(*data.groupby("reftime", squeeze=False))
     # print(datasets[0])
     # datasets = [d.expand_dims("reftime") for d in datasets]
-    paths = [
-        f"{path}_{f}.nc"
-        for f in pd.DatetimeIndex(reftimes).strftime("%Y-%m-%d")
-    ]
+    paths = [f"{path}_{f}.nc" for f in pd.DatetimeIndex(reftimes).strftime("%Y-%m-%d")]
     result = xr.save_mfdataset(datasets, paths, compute=False)
 
     try:
@@ -505,7 +510,7 @@ def combine_s2s_and_reanalysis(s2s, reanalysis, ensfc=True):
     --------
     :func:`concat_era5_before_s2s`
     """
-    if 'validtime' not in s2s.coords:
+    if "validtime" not in s2s.coords:
         s2s = add_validtime(s2s)
 
     reanalysis_padded = _reindex_reanalysis_with_s2s_valid_dates(s2s, reanalysis)
@@ -517,14 +522,16 @@ def combine_s2s_and_reanalysis(s2s, reanalysis, ensfc=True):
     try:
         ifs_with_verif = xr.merge([s2s, reanalysis_s2s_structure])
     except xr.core.merge.MergeError:
-        print('Renaming reanalysis variables by adding _verif (for verification)')
+        print("Renaming reanalysis variables by adding _verif (for verification)")
         if isinstance(reanalysis_s2s_structure, xr.DataArray):
             new_name = reanalysis_s2s_structure.name + "_verif"
             reanalysis_s2s_structure = reanalysis_s2s_structure.rename(new_name)
         elif isinstance(reanalysis_s2s_structure, xr.Dataset):
             for n in reanalysis_s2s_structure.data_vars:
                 new_name = str(n) + "_verif"
-                reanalysis_s2s_structure = reanalysis_s2s_structure.rename({n: new_name})
+                reanalysis_s2s_structure = reanalysis_s2s_structure.rename(
+                    {n: new_name}
+                )
 
         ifs_with_verif = xr.merge([s2s, reanalysis_s2s_structure])
 

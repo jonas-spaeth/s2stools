@@ -1,1 +1,354 @@
-[{"fc": {"reftime": "2017-11-20", "hc_year": -20, "number": 5}, "days_since_init": 31}, {"fc": {"reftime": "2017-11-20", "hc_year": -19, "number": 4}, "days_since_init": 21}, {"fc": {"reftime": "2017-11-20", "hc_year": -19, "number": 6}, "days_since_init": 24}, {"fc": {"reftime": "2017-11-20", "hc_year": -19, "number": 7}, "days_since_init": 36}, {"fc": {"reftime": "2017-11-20", "hc_year": -19, "number": 8}, "days_since_init": 25}, {"fc": {"reftime": "2017-11-20", "hc_year": -19, "number": 10}, "days_since_init": 24}, {"fc": {"reftime": "2017-11-20", "hc_year": -17, "number": 3}, "days_since_init": 21}, {"fc": {"reftime": "2017-11-20", "hc_year": -17, "number": 5}, "days_since_init": 25}, {"fc": {"reftime": "2017-11-20", "hc_year": -17, "number": 8}, "days_since_init": 19}, {"fc": {"reftime": "2017-11-20", "hc_year": -17, "number": 9}, "days_since_init": 20}, {"fc": {"reftime": "2017-11-20", "hc_year": -16, "number": 9}, "days_since_init": 33}, {"fc": {"reftime": "2017-11-20", "hc_year": -15, "number": 1}, "days_since_init": 31}, {"fc": {"reftime": "2017-11-20", "hc_year": -15, "number": 3}, "days_since_init": 31}, {"fc": {"reftime": "2017-11-20", "hc_year": -15, "number": 5}, "days_since_init": 27}, {"fc": {"reftime": "2017-11-20", "hc_year": -13, "number": 3}, "days_since_init": 35}, {"fc": {"reftime": "2017-11-20", "hc_year": -12, "number": 7}, "days_since_init": 22}, {"fc": {"reftime": "2017-11-20", "hc_year": -12, "number": 10}, "days_since_init": 21}, {"fc": {"reftime": "2017-11-20", "hc_year": -8, "number": 0}, "days_since_init": 34}, {"fc": {"reftime": "2017-11-20", "hc_year": -8, "number": 2}, "days_since_init": 23}, {"fc": {"reftime": "2017-11-20", "hc_year": -8, "number": 3}, "days_since_init": 22}, {"fc": {"reftime": "2017-11-20", "hc_year": -8, "number": 6}, "days_since_init": 31}, {"fc": {"reftime": "2017-11-20", "hc_year": -5, "number": 0}, "days_since_init": 19}, {"fc": {"reftime": "2017-11-20", "hc_year": -5, "number": 5}, "days_since_init": 16}, {"fc": {"reftime": "2017-11-20", "hc_year": -5, "number": 6}, "days_since_init": 29}, {"fc": {"reftime": "2017-11-20", "hc_year": -3, "number": 2}, "days_since_init": 36}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 0}, "days_since_init": 19}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 1}, "days_since_init": 32}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 3}, "days_since_init": 21}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 4}, "days_since_init": 20}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 10}, "days_since_init": 24}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 14}, "days_since_init": 34}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 15}, "days_since_init": 32}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 17}, "days_since_init": 18}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 23}, "days_since_init": 19}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 26}, "days_since_init": 26}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 30}, "days_since_init": 29}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 33}, "days_since_init": 23}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 37}, "days_since_init": 20}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 43}, "days_since_init": 34}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 44}, "days_since_init": 23}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 46}, "days_since_init": 33}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 47}, "days_since_init": 19}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 48}, "days_since_init": 21}, {"fc": {"reftime": "2017-11-20", "hc_year": 0, "number": 49}, "days_since_init": 19}]
+[
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -20,
+      "number": 5
+    },
+    "days_since_init": 31
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -19,
+      "number": 4
+    },
+    "days_since_init": 21
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -19,
+      "number": 6
+    },
+    "days_since_init": 24
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -19,
+      "number": 7
+    },
+    "days_since_init": 36
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -19,
+      "number": 8
+    },
+    "days_since_init": 25
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -19,
+      "number": 10
+    },
+    "days_since_init": 24
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -17,
+      "number": 3
+    },
+    "days_since_init": 21
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -17,
+      "number": 5
+    },
+    "days_since_init": 25
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -17,
+      "number": 8
+    },
+    "days_since_init": 19
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -17,
+      "number": 9
+    },
+    "days_since_init": 20
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -16,
+      "number": 9
+    },
+    "days_since_init": 33
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -15,
+      "number": 1
+    },
+    "days_since_init": 31
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -15,
+      "number": 3
+    },
+    "days_since_init": 31
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -15,
+      "number": 5
+    },
+    "days_since_init": 27
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -13,
+      "number": 3
+    },
+    "days_since_init": 35
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -12,
+      "number": 7
+    },
+    "days_since_init": 22
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -12,
+      "number": 10
+    },
+    "days_since_init": 21
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -8,
+      "number": 0
+    },
+    "days_since_init": 34
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -8,
+      "number": 2
+    },
+    "days_since_init": 23
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -8,
+      "number": 3
+    },
+    "days_since_init": 22
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -8,
+      "number": 6
+    },
+    "days_since_init": 31
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -5,
+      "number": 0
+    },
+    "days_since_init": 19
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -5,
+      "number": 5
+    },
+    "days_since_init": 16
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -5,
+      "number": 6
+    },
+    "days_since_init": 29
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": -3,
+      "number": 2
+    },
+    "days_since_init": 36
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 0
+    },
+    "days_since_init": 19
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 1
+    },
+    "days_since_init": 32
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 3
+    },
+    "days_since_init": 21
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 4
+    },
+    "days_since_init": 20
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 10
+    },
+    "days_since_init": 24
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 14
+    },
+    "days_since_init": 34
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 15
+    },
+    "days_since_init": 32
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 17
+    },
+    "days_since_init": 18
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 23
+    },
+    "days_since_init": 19
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 26
+    },
+    "days_since_init": 26
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 30
+    },
+    "days_since_init": 29
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 33
+    },
+    "days_since_init": 23
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 37
+    },
+    "days_since_init": 20
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 43
+    },
+    "days_since_init": 34
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 44
+    },
+    "days_since_init": 23
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 46
+    },
+    "days_since_init": 33
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 47
+    },
+    "days_since_init": 19
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 48
+    },
+    "days_since_init": 21
+  },
+  {
+    "fc": {
+      "reftime": "2017-11-20",
+      "hc_year": 0,
+      "number": 49
+    },
+    "days_since_init": 19
+  }
+]
