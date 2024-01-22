@@ -73,7 +73,7 @@ def test_stack_ensfc():
 
 
 def test_reft_hc_year_to_fc_init_date():
-    ds = xr.open_mfdataset("data/s2s*hc_*.nc", preprocess=s2sparser)
+    ds = xr.open_mfdataset(f"{DATA_PATH}/s2s*hc_*.nc", preprocess=s2sparser)
     ds_fc_init_date = reft_hc_year_to_fc_init_date(ds)
     assert "fc_init_date" in ds_fc_init_date.dims
     # check if #hc_years * #reftimes = #fc_init_dates
