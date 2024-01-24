@@ -7,8 +7,10 @@ Only some of the major changes are tracked here.
 
 v0.3.7 (unpublished)
 --------------------
-
-
+- new function :func:`s2stools.process.reft_hc_year_to_fc_init_date` to convert s2s data reftime-hindcast_year to forecast initialisation date
+- breaking changes to :func:`s2stools.clim.climatology`
+    - parameter ``groupby`` is now ``"leadtime"`` by default instead of ``"validtime"``
+    - support for ``groupby="validtime"`` is dropped for now, due to incompatibility with recent xarray version
 
 v0.3.6 (15 December 2023)
 --------------------
