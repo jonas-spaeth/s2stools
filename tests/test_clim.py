@@ -43,8 +43,17 @@ def test_clim():
     assert da_anom.mean() < da.mean() * 0.01
 
     # test different parameter settings
-    _ = climatology(da, window_size=1, ndays_clim_filter=1, groupby="leadtime")
+    _ = climatology(da, window_size=1, ndays_clim_filter=1)
     _ = climatology(da, mean_or_std="std")
 
     # test climatology if dim number not existing
     _ = climatology(da.mean("number"))
+
+    # test with and without flox:
+    with xr.set_options(use_flox=False):
+        _ = climatology(da)
+    with xr.set_options(use_flox=True):
+        _ = climatology(da)
+
+    # todo: implement and test climatology for groupby="validtime
+    pass
