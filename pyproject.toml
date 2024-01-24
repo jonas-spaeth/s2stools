@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "s2stools"
-version = "0.3.6"  # version = "0.3.5"  # now switched to single-source versioning
+version = "0.4.0"
 authors = [
     { name = "Jonas Spaeth", email = "jonas.spaeth@physik.uni-muenchen.de" },
 ]
