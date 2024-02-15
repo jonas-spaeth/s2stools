@@ -135,107 +135,103 @@ def groupby_quantiles(dataarray, groupby, q, q_dim, labels=None):
     return dataarray.groupby_bins(groupby, bins=q_bins, labels=labels)
 
 
-def wrap_time(xr_data, season_start_month=12, change_dims=True):
-    # year of season (index corresponds to lower bound of season)
-    coord_season_yr = xr.where(
-        xr_data.time.dt.month < season_start_month,
-        xr_data.time.dt.year - 1,
-        xr_data.time.dt.year,
-    )
+def wrap_time(xr_data, season_start_month, change_dims=True):
+    """
+    Transform data from a linear time axis to a reshaped pair of ``("season", "timestepofseason")``.
+    Can for example be used to go from time to DJF and day since Dec 1.
 
-    # day of season (first day of season is 1)
-    season_start_doy_in_non_leap = pd.Timestamp(
-        f"1999-{season_start_month}-01"
-    ).dayofyear
+    Parameters
+    ----------
+    xr_data (xr.Dataset | xr.DataArray) : data to transform
+    season_start_month (int) : month when the season starts, between 1 and 12
+    change_dims (bool) : if True, the time dimension is replaced by ``timestepofseason`` and ``season``.
+     If False, the time dimension, and ``season`` and ``timestepofseason`` are just added as new coordinates.
 
-    # add 1 to season start day if year is leap
-    season_start_yr_is_leap = (coord_season_yr % 4) == 0
-    if season_start_month > 2:
-        season_start_doy = season_start_doy_in_non_leap + season_start_yr_is_leap
-    else:
-        season_start_doy = season_start_doy_in_non_leap
+    Returns
+    -------
+    xr_data : xr.Dataset | xr.DataArray
 
-    # (add 1 in order to let Nov 1 be day of season = 1 and not =0)
-    coord_season_dof = (
-        (
-            xr_data.time.dt.dayofyear
-            + xr.where(
-                xr_data.time.dt.dayofyear < season_start_doy,
-                365 + season_start_yr_is_leap,
-                0,
-            )
-        )
-        % season_start_doy
-    ) + 1
-
-    # store old time coordinates
-    time_idx = xr_data.time.values
-
-    xr_data_newcoords = xr_data.assign_coords(
-        season=("time", coord_season_yr.values),
-        dayofseason=("time", coord_season_dof.values),
-        season_start_month=season_start_month,
-    )
-
-    if not change_dims:
-        return xr_data_newcoords
-    else:
-        xr_data_newidx = xr_data_newcoords.set_index(
-            time=("season", "dayofseason")
-        ).rename(time="stacked_time")
-
-        # add old time index again
-        xr_data_final = xr_data_newidx.assign_coords(
-            time=("stacked_time", time_idx)
-        ).unstack()
-
-        return xr_data_final
-
-
-def unwrap_time(xr_data, season_start_month=None):
-    if season_start_month is None:
-        season_start_month = int(xr_data.season_start_month)
-        assert season_start_month > 0 and season_start_month < 13
-
-    seasons = xr_data.season
-    dates_first_of_jan = pd.to_datetime(seasons.values, format="%Y")
-    dates_season_starts = dates_first_of_jan + pd.tseries.offsets.DateOffset(
-        months=season_start_month - 1
-    )
-
-    dates_season_starts_xr = xr.DataArray(dates_season_starts, dims="season")
-    deltas = pd.TimedeltaIndex(xr_data.dayofseason.values - 1, unit="D")
-    deltas_xr = xr.DataArray(deltas, dims="dayofseason")
-
-    xr_data_stacked = xr_data.stack(time=("season", "dayofseason"))
-    time_stacked = (dates_season_starts_xr + deltas_xr).stack(
-        time=("season", "dayofseason")
-    )
-    xr_data_stacked_time = xr_data_stacked.assign_coords(time=time_stacked.values)
-    return xr_data_stacked_time
-
-    # dos = xr_data.dayofseason
-
-
-def wrap_time2(xr_data, season_start_month, change_dims=True):
+    Examples
+    --------
+    >>> times = pd.date_range("2000-11-01", "2001-12-01", freq="D")
+    >>> nt = len(times)
+    >>> ds = xr.DataArray(
+    >>>     np.random.randint(low=0, high=100, size=(nt, 10)),
+    >>>     coords=dict(time=times, x=np.arange(10)),
+    >>>     dims=["time", "x"],
+    >>> )
+    >>> print(ds)
+    <xarray.DataArray (time: 396, x: 10)>
+    array([[27, 34, 84, ..., 68, 16, 61],
+           [12, 98, 94, ..., 25, 38, 87],
+           [ 4, 27, 91, ..., 78, 48, 55],
+           ...,
+           [ 1, 75, 64, ..., 21, 21,  7],
+           [18, 96,  9, ..., 60, 85,  2],
+           [31, 28, 36, ..., 64, 48, 97]])
+    Coordinates:
+      * time     (time) datetime64[ns] 2000-11-01 2000-11-02 ... 2001-12-01
+      * x        (x) int64 0 1 2 3 4 5 6 7 8 9
+    >>> ds_transformed = wrap_time(ds, season_start_month=11, change_dims=True)
+    >>> print(ds_transformed)
+    <xarray.DataArray (season: 2, x: 10, timestepofseason: 365)>
+    array([[[46.,  3., 62., ..., 63., 15., 69.],
+            [22., 23., 89., ..., 40., 47., 63.],
+            ....
+            [91.,  7., 78., ..., nan, nan, nan],
+            [87., 30., 88., ..., nan, nan, nan]]])
+    Coordinates:
+      * x                   (x) int64 0 1 2 3 4 5 6 7 8 9
+      * timestepofseason    (timestepofseason) int64 1 2 3 4 5 ... 362 363 364 365
+        time                (season, timestepofseason) datetime64[ns] 2000-11-01 ...
+      * season              (season) int64 2000 2001
+        season_start_month  int64 11
+    """
+    # Grouper: season is the year of the first month of the season
     grouper = xr.where(
         xr_data.time.dt.month < season_start_month,
         xr_data.time.dt.year - 1,
         xr_data.time.dt.year,
-    )
+    ).rename("season")
+
+    # Group by season
     grouped = xr_data.groupby(grouper)
 
+    # add coordinate timestepofseason
     def time_to_dayofseason(x):
         dos = np.arange(1, len(x.time) + 1)
         x_new_coord = x.assign_coords(timestepofseason=("time", dos))
-        x_new_idx = x_new_coord.swap_dims({"time": "timestepofseason"})
-        return x_new_idx
+        if change_dims:
+            x_new_coord = x_new_coord.swap_dims({"time": "timestepofseason"})
+        return x_new_coord
 
     grouped_newidx = grouped.map(time_to_dayofseason)
 
-    return grouped_newidx.assign_coords(season_start_month=season_start_month)
+    # add season_start_month as coordinate, for info
+    result = grouped_newidx.assign_coords(season_start_month=season_start_month)
+
+    # if change_dims is False, add season manually as coordinate
+    if not change_dims:
+        result = result.assign_coords(season=("time", grouper.values))
+
+    return result
 
 
-def unwrap_time2(xr_data):
+def unwrap_time(xr_data):
+    """
+    Transform data back from ("season", "timestepofseason") to a linear time axis.
+
+    Parameters
+    ----------
+    xr_data (xr.Dataset | xr.DataArray) : data to transform
+
+    Returns
+    -------
+    xr_data : xr.Dataset | xr.DataArray
+
+    See Also
+    --------
+    :func:`wrap_time`
+    """
     grouped = xr_data.groupby("time")
     return grouped.first(skipna=True)
