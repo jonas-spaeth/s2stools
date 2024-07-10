@@ -10,6 +10,8 @@ from s2stools.process import (
     reft_hc_year_to_fc_init_date,
     combine_s2s_and_reanalysis,
     _infer_reftime_from_filename,
+    sel_fc_around_dates,
+    table_of_fc_around_dates,
 )
 from tests.utils import DATA_PATH
 
@@ -125,3 +127,36 @@ def test__infer_reftime_from_filename():
     path = f"{DATA_PATH}/s2s_something_else_20171101.nc"
     result = _infer_reftime_from_filename(path)
     assert isinstance(result, np.datetime64)
+
+
+def test_sel_fc_around_dates():
+    ds = xr.open_mfdataset(f"{DATA_PATH}/s2s*.nc", preprocess=s2sparser)
+
+    # test with dates that are available
+    dates = np.array(["2015-11-16", "2011-11-17"], dtype="datetime64")
+    selected_fc = sel_fc_around_dates(ds, dates, tolerance_days=3)
+    # assert selected_fc.fc_start.values == np.array(["2015-11-16", "2011-11-16", "2011-11-20"], dtype="datetime64")
+    np.testing.assert_array_equal(
+        selected_fc.fc_start.values,
+        np.array(["2015-11-16", "2011-11-16", "2011-11-20"], dtype="datetime64"),
+    )
+
+    # test with one available and one not available date
+    dates = np.array(["2024-11-16", "2011-11-17"], dtype="datetime64")
+    selected_fc = sel_fc_around_dates(ds, dates, tolerance_days=1)
+    np.testing.assert_array_equal(
+        selected_fc.fc_start.values, np.array(["2011-11-16"], dtype="datetime64")
+    )
+
+    # test with dates that are not available
+    dates = np.array(["2024-11-16", "2024-11-17"], dtype="datetime64")
+    selected_fc = sel_fc_around_dates(ds, dates, tolerance_days=1)
+    assert selected_fc is None
+
+
+def test_table_of_fc_around_dates():
+    ds = xr.open_mfdataset(f"{DATA_PATH}/s2s*.nc", preprocess=s2sparser)
+
+    dates = np.array(["2015-11-16", "2011-11-17"], dtype="datetime64")
+    table = table_of_fc_around_dates(ds, dates, tolerance_days=3)
+    assert table.shape == (3, 2)

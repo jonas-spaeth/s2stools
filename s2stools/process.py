@@ -544,3 +544,109 @@ def combine_s2s_and_reanalysis(s2s, reanalysis, ensfc=True):
         return ifs_with_verif_ensfc
     else:
         return ifs_with_verif
+
+
+def sel_fc_around_dates(s2s, dates, tolerance_days):
+    """
+    Select forecasts around specific dates.
+
+    Parameters
+    ----------
+    s2s : xr.Dataset
+        Dataset with dimensions ('reftime', 'hc_year', 'leadtime')
+    dates : list
+        List of dates to select around.
+    tolerance_days : int
+        Tolerance in days to select around the date. E.g., if tolerance_days=3, then include forecasts from 3 days before and after the date.
+
+    Returns
+    -------
+    xr.Dataset
+    """
+    if not ("fc_start" in s2s.coords):
+        print("forecasts don't have coordinate fc_start, therefore trying to add it...")
+        s2s = _stack_fc_and_add_fc_start_date(s2s.unstack())
+
+    list_of_fc = []
+    dt = pd.Timedelta(tolerance_days, "days")
+    for e in dates:
+        if e is None:
+            continue
+        around_date = np.arange(
+            e - dt, e + dt + pd.Timedelta(1, "days"), dtype=("datetime64[D]")
+        )
+        idx = xr.DataArray(
+            np.isin(s2s.fc_start, around_date),
+            dims=s2s.fc_start.dims,
+            coords=s2s.fc_start.coords,
+        )
+        appropriate_fc_start = s2s.where(idx, drop=True)
+        if len(appropriate_fc_start.fc_start) == 0:
+            continue
+        for fc in appropriate_fc_start.fc:
+            list_of_fc.append(appropriate_fc_start.sel(fc=fc))
+    if len(list_of_fc) > 0:
+        return xr.concat(list_of_fc, dim="i")
+    else:
+        print("No forecasts found around the dates.")
+        return None
+
+
+def _stack_fc_and_add_fc_start_date(dataarray):
+    stacked = dataarray.stack(fc=("reftime", "hc_year"))
+    fc_start = add_years(stacked.reftime.values, stacked.hc_year.values)
+    dataarray_with_fc_start = dataarray.assign_coords(
+        fc_start=(
+            ["reftime", "hc_year"],
+            fc_start.reshape(len(dataarray.reftime), len(dataarray.hc_year)),
+        )
+    )
+    stacked_with_fc_start = dataarray_with_fc_start.stack(fc=("reftime", "hc_year"))
+    return stacked_with_fc_start
+
+
+def table_of_fc_around_dates(s2s, dates, tolerance_days=3):
+    if not ("fc_start" in s2s.coords):
+        print("forecasts don't have coordinate fc_start, therefore trying to add it...")
+        s2s = _stack_fc_and_add_fc_start_date(s2s.unstack())
+
+    list_of_fc = []
+    dict_of_fc = {}
+    dt = pd.Timedelta(tolerance_days, "days")
+    for e in dates:
+        list_of_new_fc = []
+
+        if e is None:
+            continue
+        around_date = np.arange(
+            e - dt, e + dt + pd.Timedelta(1, "days"), dtype=("datetime64[D]")
+        )
+        idx = xr.DataArray(
+            np.isin(s2s.fc_start, around_date),
+            dims=s2s.fc_start.dims,
+            coords=s2s.fc_start.coords,
+        )
+        appropriate_fc_start = s2s.where(idx, drop=True)
+        if len(appropriate_fc_start.fc_start) == 0:
+            continue
+        for fc in appropriate_fc_start.fc:
+            list_of_fc.append(appropriate_fc_start.sel(fc=fc))
+            list_of_new_fc.append(appropriate_fc_start.sel(fc=fc))
+        dict_of_fc[e] = [fc.fc.values.item() for fc in list_of_new_fc]
+    table = dict_of_fc
+
+    items = []
+    for k, v in table.items():
+        for vref, vhc in v:
+            item = [k, vref, vhc]
+            items.append(item)
+    df = pd.DataFrame(data=items, columns=["Date", "Realtime Init.", "Hindcast [yr]"])
+    gb = df.groupby("Date")
+
+    values = range(10)
+
+    d = dict(enumerate(values))
+
+    df["FC"] = df.groupby("Date").cumcount().map(d)
+    df = df.set_index(["Date", "FC"])
+    return df
