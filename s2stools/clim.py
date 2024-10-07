@@ -132,7 +132,7 @@ def climatology(
                     center=True,
                     min_periods=1,
                 ).mean()  # rolling mean
-            ).expand_dims(dim=dict(reftime=[reftime]))
+            ).expand_dims(dim=dict(reftime=[reftime.astype("datetime64[ns]")]))
 
         if len(clim.leadtime) != len(data.leadtime):
             if not hide_warnings:

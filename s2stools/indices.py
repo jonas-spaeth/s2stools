@@ -32,7 +32,9 @@ def download_mjo():
             julian_days = dataarray["T"].values.astype("int").astype("timedelta64[D]")
             base_date = np.datetime64("-4713-11-24")  # julian calendar
             dates = base_date + julian_days
-            return dataarray.rename(T="time").assign_coords(time=dates)
+            return dataarray.rename(T="time").assign_coords(
+                time=dates.astype("timedelta64[ns]")
+            )
 
         return [time_coordinates(da) for da in [da_phase, da_amplitude]]
 
@@ -56,8 +58,7 @@ def download_enso(interp_daily=False) -> xr.Dataset:
     df = pd.read_table(
         url,
         skiprows=1,
-        delim_whitespace=True,
-        #    index_col=0,
+        sep=r"\s+",
         names=["year"] + list(np.arange(1, 13)),
         skipfooter=7,
         engine="python",
@@ -114,7 +115,7 @@ def download_qbo():
     qbo = pd.read_table(
         path,
         skiprows=381,
-        delim_whitespace=True,
+        sep=r"\s+",
         index_col=0,
         usecols=range(1, 9),
         names=[
@@ -191,9 +192,7 @@ def nao() -> xr.DataArray:
     https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.index.b500101.current.ascii
     """
     path = "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.index.b500101.current.ascii"
-    nao_index = pd.read_table(
-        path, names=["year", "month", "day", "nao"], delim_whitespace=True
-    )
+    nao_index = pd.read_table(path, names=["year", "month", "day", "nao"], sep=r"\s+")
     nao_index = nao_index[~np.isnan(nao_index.nao)]
     nao_index["time"] = pd.to_datetime(nao_index[["year", "month", "day"]])
     nao_index = nao_index.drop(columns=["year", "month", "day"])
