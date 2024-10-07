@@ -13,7 +13,7 @@ import sys
 sys.path.insert(0, os.path.abspath("../.."))
 
 project = "s2stools"
-copyright = "2023, Jonas Spaeth"
+copyright = "2024, Jonas Spaeth"
 author = "Jonas Spaeth"
 with open("../../VERSION") as f:
     version = f.read().strip()

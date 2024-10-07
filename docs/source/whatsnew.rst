@@ -5,18 +5,21 @@ What's new
 
 Only some of the major changes are tracked here.
 
-v0.4.1 (unpublished)
---------------------
+v0.4.1 (07 October 2024)
+------------------------
+- :func:`s2stools.utils.wrap_time` and :func:`s2stools.utils.unwrap_time` are added to handle different dimensions of time (`time` versus ``winter``/ ``timestepofseason``)
+- ensure compatibility with ``xarray 2024.09.0``, ``numpy 2`` and ``python 3.12``
+- added :func:`s2stools.process.sel_fc_around_dates`: select forecast data around a given list of dates, useful e.g., for selecting forecasts initialized around sudden stratospheric warming events
 
 v0.4.0 (24 January 2024)
---------------------
+------------------------
 - breaking changes to :func:`s2stools.clim.climatology`
     - parameter ``groupby`` is now ``"leadtime"`` by default instead of ``"validtime"``
     - support for ``groupby="validtime"`` is dropped for now, due to incompatibility with recent xarray version
 - new function :func:`s2stools.process.reft_hc_year_to_fc_init_date` to convert s2s data reftime-hindcast_year to forecast initialisation date
 
 v0.3.6 (15 December 2023)
---------------------
+-------------------------
 
 - :func:`s2stools.plot.cmap_spread` accepts to new arguments ``less_dark_blue`` and ``less_dark_red`` to control saturation limits
 - new function :func:`s2stools.plot.legend_colored_labels_no_lines` behaves like ``ax.legend``, but instead of drawing handles and labels next to each other, only labels are created, but in the color of the respective handle
