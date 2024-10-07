@@ -4,23 +4,13 @@ stages:
   - test
   - install
 
-# release:
-# stage: release
-# image: python:latest
-# script:
-#   - pip install twine
-#   - python setup.py sdist bdist_wheel
-#   - twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing --verbose dist/* -u __token__ -p ${TEST_PYPI_API_TOKEN}
-# only:
-#   - tags
-
 release:
   stage: release
   image: python:latest
   script:
     - pip install twine
     - python setup.py sdist bdist_wheel
-    - twine upload --repository-url https://pypi.org/legacy/ --skip-existing --verbose dist/* -u __token__ -p ${PYPI_API_TOKEN}
+    - twine upload --repository pypi --skip-existing --verbose dist/* -u __token__ -p ${PYPI_API_TOKEN}
   only:
     - tags
 
@@ -31,10 +21,6 @@ format:
     - pip install black
     - pip install "black[jupyter]"
     - black --check .
-#  only:
-#    - main
-#    - development
-#    - setup-ci
 
 test:
   stage: test
@@ -43,10 +29,6 @@ test:
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
     - pytest tests/
-#  only:
-#    - main
-#    - development
-#    - setup-ci
 
 install:
   stage: install
@@ -54,7 +36,3 @@ install:
   script:
     - pip install s2stools
     - python -c "import s2stools"
-#  only:
-#    - main
-#    - development
-#    - setup-ci

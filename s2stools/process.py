@@ -192,7 +192,7 @@ def download_table_ecmwf_model():
 
     table_ecmwf_model = table_ecmwf_model_raw.iloc[1:]
     table_ecmwf_model.loc[:, IMPL_DATE] = pd.to_datetime(
-        table_ecmwf_model[IMPL_DATE], infer_datetime_format=True
+        table_ecmwf_model[IMPL_DATE], dayfirst=True
     )
     return table_ecmwf_model
 
@@ -279,7 +279,7 @@ def concat_era5_before_s2s(
 
     # reindex s2s forecasts to negative lags
     s2s_with_neg_leadtimes = add_validtime(
-        s2s.drop("validtime").reindex(
+        s2s.drop_vars("validtime").reindex(
             leadtime=pd.timedelta_range(f"-{max_neg_leadtime_days}D", "-1D")
         )
     )
@@ -288,7 +288,7 @@ def concat_era5_before_s2s(
 
     era5_on_s2s_structure = era5_padded.sel(time=s2s_with_neg_leadtimes.validtime)
     era5_on_s2s_structure_with_number = (
-        era5_on_s2s_structure.drop("time")
+        era5_on_s2s_structure.drop_vars("time")
         .expand_dims("number")
         .assign_coords(number=[0])
         .reindex(number=s2s.number, method="nearest")
@@ -449,7 +449,7 @@ def reft_hc_year_to_fc_init_date(s2s_data):
 
     data_stacked = s2s_data.stack(fc=("reftime", "hc_year"))
 
-    return data_stacked.swap_dims({"fc": "fc_init_date"}).drop("fc")
+    return data_stacked.swap_dims({"fc": "fc_init_date"}).drop_vars("fc")
 
 
 def combine_s2s_and_reanalysis(s2s, reanalysis, ensfc=True):
@@ -519,7 +519,9 @@ def combine_s2s_and_reanalysis(s2s, reanalysis, ensfc=True):
     reanalysis_padded = _reindex_reanalysis_with_s2s_valid_dates(s2s, reanalysis)
 
     # project reanalysis onto s22 structure
-    reanalysis_s2s_structure = reanalysis_padded.sel(time=s2s.validtime).drop("time")
+    reanalysis_s2s_structure = reanalysis_padded.sel(time=s2s.validtime).drop_vars(
+        "time"
+    )
 
     # merge (and give reanalysis variables new names by adding "_verif")
     try:

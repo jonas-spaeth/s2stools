@@ -5,3 +5,4 @@ xarray
 tqdm
 matplotlib
 ecmwf-api-client
+cftime
