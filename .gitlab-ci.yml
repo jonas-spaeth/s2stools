@@ -8,7 +8,7 @@ release:
   stage: release
   image: python:latest
   script:
-    - pip install twine
+    - pip install twine setuptools
     - python setup.py sdist bdist_wheel
     - twine upload --repository pypi --skip-existing --verbose dist/* -u __token__ -p ${PYPI_API_TOKEN}
   only:
